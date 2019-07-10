@@ -1,39 +1,36 @@
 package org.maxgamer.maxbans.util;
 
-import java.net.UnknownHostException;
-import java.net.InetAddress;
-
-import org.maxgamer.maxbans.Msg;
-import org.maxgamer.maxbans.sync.Packet;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerLoginEvent;
-import java.sql.ResultSet;
-import java.sql.PreparedStatement;
-import java.util.List;
+import org.maxgamer.maxbans.MaxBans;
+import org.maxgamer.maxbans.Msg;
 import org.maxgamer.maxbans.database.Database;
+import org.maxgamer.maxbans.sync.Packet;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import org.maxgamer.maxbans.MaxBans;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DNSBL {
-    private final Map<String, CacheRecord> history = new HashMap<>();
-    private MaxBans plugin;
     private static long cache_timeout;
-    private final List<String> servers = new ArrayList<>();
-    private boolean kick;
-    private boolean notify;
-    
+
     static {
         DNSBL.cache_timeout = 604800000L;
     }
-    
-    public Map<String, CacheRecord> getHistory() {
-        return this.history;
-    }
-    
+
+    private final Map<String, CacheRecord> history = new HashMap<>();
+    private final List<String> servers = new ArrayList<>();
+    private MaxBans plugin;
+    private boolean kick;
+    private boolean notify;
+
     public DNSBL(final MaxBans plugin) {
         super();
         this.kick = false;
@@ -66,19 +63,21 @@ public class DNSBL {
                 if (status == null) {
                     plugin.getLogger().info("Invalid proxy status found: " + statusString);
                     db.execute("DELETE FROM proxys WHERE ip = ?", ip);
-                }
-                else {
+                } else {
                     final CacheRecord r = new CacheRecord(status, created);
                     this.history.put(ip, r);
                 }
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
             plugin.getLogger().info("Could not load proxys...");
         }
     }
-    
+
+    public Map<String, CacheRecord> getHistory() {
+        return this.history;
+    }
+
     public void handle(final PlayerLoginEvent event) {
         if (event.getAddress() == null) {
             return;
@@ -86,7 +85,7 @@ public class DNSBL {
 
         this.handle(event.getPlayer(), event.getAddress().getHostAddress());
     }
-    
+
     public void handle(final Player p, final String address) {
         final CacheRecord r = this.getRecord(address);
 
@@ -124,8 +123,7 @@ public class DNSBL {
                     }
                 }
             });
-        }
-        else if (r.getStatus() == DNSStatus.DENIED) {
+        } else if (r.getStatus() == DNSStatus.DENIED) {
             if (this.notify) {
                 final String msg = Formatter.secondary + p.getName() + Formatter.primary + " (" + Formatter.secondary + address + Formatter.primary + ") is joining from a proxy IP!";
 
@@ -144,11 +142,11 @@ public class DNSBL {
             }
         }
     }
-    
+
     public List<String> getServers() {
         return this.servers;
     }
-    
+
     public CacheRecord getRecord(final String ip) {
         final CacheRecord r = this.history.get(ip);
 
@@ -163,7 +161,7 @@ public class DNSBL {
 
         return r;
     }
-    
+
     public CacheRecord reload(final String ip) {
         final String[] parts = ip.split("\\.");
         final StringBuilder buffer = new StringBuilder();
@@ -182,61 +180,60 @@ public class DNSBL {
                     r = new CacheRecord(DNSStatus.DENIED);
                     break;
                 }
+            } catch (UnknownHostException ignored) {
             }
-            catch (UnknownHostException ignored) {}
         }
 
         this.setRecord(ip, r);
         return r;
     }
-    
+
     public void setRecord(final String ip, final CacheRecord r) {
         if (this.getRecord(ip) == null) {
             this.plugin.getDB().execute("INSERT INTO proxys (ip, status, created) VALUES (?, ?, ?)", ip, r.getStatus().toString(), r.getCreated());
-        }
-        else {
+        } else {
             this.plugin.getDB().execute("UPDATE proxys SET status = ?, created = ? WHERE ip = ?", r.getStatus().toString(), r.getCreated(), ip);
         }
 
         this.history.put(ip, r);
     }
-    
+
     public enum DNSStatus {
-        ALLOWED, 
-        DENIED, 
+        ALLOWED,
+        DENIED,
         UNKNOWN
     }
-    
+
     public static class CacheRecord {
         private final DNSStatus status;
         private final long created;
-        
+
         public CacheRecord(final DNSStatus status, final long created) {
             super();
             this.status = status;
             this.created = created;
         }
-        
+
         public CacheRecord(final DNSStatus status) {
             this(status, System.currentTimeMillis());
         }
-        
+
         public DNSStatus getStatus() {
             return this.status;
         }
-        
+
         public long getCreated() {
             return this.created;
         }
-        
+
         public long getExpires() {
             return this.getCreated() + DNSBL.cache_timeout;
         }
-        
+
         public boolean hasExpired() {
             return System.currentTimeMillis() > this.getExpires();
         }
-        
+
         public String toString() {
             return this.status.toString();
         }

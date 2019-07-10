@@ -1,83 +1,50 @@
 package org.maxgamer.maxbans;
 
-import org.maxgamer.maxbans.commands.UnbanRangeCommand;
-import org.maxgamer.maxbans.commands.TempRangeBanCommand;
-import org.maxgamer.maxbans.commands.RangeBanCommand;
-import org.maxgamer.maxbans.commands.ImmuneCommand;
-import org.maxgamer.maxbans.commands.WhitelistCommand;
-import org.maxgamer.maxbans.commands.ReloadCommand;
-import org.maxgamer.maxbans.commands.MBDebugCommand;
-import org.maxgamer.maxbans.commands.MBExportCommand;
-import org.maxgamer.maxbans.commands.MBImportCommand;
-import org.maxgamer.maxbans.commands.HistoryCommand;
-import org.maxgamer.maxbans.commands.MBCommand;
-import org.maxgamer.maxbans.commands.ForceSpawnCommand;
-import org.maxgamer.maxbans.commands.KickCommand;
-import org.maxgamer.maxbans.commands.LockdownCommand;
-import org.maxgamer.maxbans.commands.ClearWarningsCommand;
-import org.maxgamer.maxbans.commands.UnWarnCommand;
-import org.maxgamer.maxbans.commands.WarnCommand;
-import org.maxgamer.maxbans.commands.DupeIPCommand;
-import org.maxgamer.maxbans.commands.CheckBanCommand;
-import org.maxgamer.maxbans.commands.CheckIPCommand;
-import org.maxgamer.maxbans.commands.UUID;
-import org.maxgamer.maxbans.commands.UnMuteCommand;
-import org.maxgamer.maxbans.commands.UnbanCommand;
-import org.maxgamer.maxbans.commands.TempMuteCommand;
-import org.maxgamer.maxbans.commands.TempIPBanCommand;
-import org.maxgamer.maxbans.commands.TempBanCommand;
-import org.maxgamer.maxbans.commands.MuteCommand;
-import org.maxgamer.maxbans.commands.IPBanCommand;
-import org.maxgamer.maxbans.commands.BanCommand;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
-import org.maxgamer.maxbans.bungee.BungeeListener;
-import org.maxgamer.maxbans.commands.ToggleChat;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.maxgamer.maxbans.banmanager.BanManager;
 import org.maxgamer.maxbans.banmanager.SyncBanManager;
+import org.maxgamer.maxbans.bungee.BungeeListener;
+import org.maxgamer.maxbans.commands.*;
+import org.maxgamer.maxbans.database.Database;
+import org.maxgamer.maxbans.database.DatabaseCore;
+import org.maxgamer.maxbans.database.MySQLCore;
+import org.maxgamer.maxbans.database.SQLiteCore;
+import org.maxgamer.maxbans.geoip.GeoIPDatabase;
+import org.maxgamer.maxbans.listeners.ChatCommandListener;
+import org.maxgamer.maxbans.listeners.ChatListener;
+import org.maxgamer.maxbans.listeners.HeroChatListener;
+import org.maxgamer.maxbans.listeners.JoinListener;
+import org.maxgamer.maxbans.sync.SyncServer;
+import org.maxgamer.maxbans.sync.Syncer;
+import org.maxgamer.maxbans.util.Formatter;
+import org.mcstats.Metrics;
 
 import java.io.*;
-
-import org.maxgamer.maxbans.database.DatabaseCore;
-import org.maxgamer.maxbans.database.SQLiteCore;
-import org.maxgamer.maxbans.database.MySQLCore;
-import org.maxgamer.maxbans.util.Formatter;
-import org.bukkit.Bukkit;
-
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.maxgamer.maxbans.database.Database;
-import org.maxgamer.maxbans.listeners.ChatCommandListener;
-import org.maxgamer.maxbans.listeners.ChatListener;
-import org.maxgamer.maxbans.listeners.HeroChatListener;
-import org.maxgamer.maxbans.listeners.JoinListener;
-import org.maxgamer.maxbans.geoip.GeoIPDatabase;
-import org.maxgamer.maxbans.sync.SyncServer;
-import org.maxgamer.maxbans.sync.Syncer;
-import org.maxgamer.maxbans.banmanager.BanManager;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.mcstats.Metrics;
-
 public class MaxBans extends JavaPlugin {
-    public static final String BUNGEE_CHANNEL = "BungeeCord";
+    public static MaxBans instance;
+    public boolean filter_names;
     private BanManager banManager;
     private Syncer syncer;
     private SyncServer syncServer;
     private GeoIPDatabase geoIPDB;
-    private JoinListener joinListener;
-    private HeroChatListener herochatListener;
-    private ChatListener chatListener;
-    private ChatCommandListener chatCommandListener;
     private Database db;
     private Metrics metrics;
-    public boolean filter_names;
-    public static MaxBans instance;
-    
+
+    static /* synthetic */ void access$0(final MaxBans maxBans, final GeoIPDatabase geoIPDB) {
+        maxBans.geoIPDB = geoIPDB;
+    }
+
     public GeoIPDatabase getGeoDB() {
         return this.geoIPDB;
     }
-    
+
     public void onEnable() {
         MaxBans.instance = this;
 
@@ -112,7 +79,9 @@ public class MaxBans extends JavaPlugin {
                         while ((count = in.read(b)) >= 0) {
                             out.write(b, 0, count);
                         }
-                        out.flush(); out.close(); in.close();
+                        out.flush();
+                        out.close();
+                        in.close();
 
                         MaxBans.this.getLogger().info("Download complete.");
 
@@ -124,16 +93,14 @@ public class MaxBans extends JavaPlugin {
                         zipLocal.delete();
 
                         MaxBans.access$0(MaxBans.this, new GeoIPDatabase(geoCSV));
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                         System.out.println("Failed to download MaxBans GeoIPDatabase");
                     }
                 }
             };
             Bukkit.getScheduler().runTaskAsynchronously(this, download);
-        }
-        else {
+        } else {
             this.geoIPDB = new GeoIPDatabase(geoCSV);
         }
 
@@ -150,8 +117,7 @@ public class MaxBans extends JavaPlugin {
             final String name = dbConfig.getString("name");
             final String port = dbConfig.getString("port");
             dbCore = new MySQLCore(host, user, pass, name, port);
-        }
-        else {
+        } else {
             this.getLogger().info("Using SQLite");
             dbCore = new SQLiteCore(new File(this.getDataFolder(), "bans.db"));
         }
@@ -168,8 +134,7 @@ public class MaxBans extends JavaPlugin {
                     super.execute(query, objs);
                 }
             };
-        }
-        catch (Database.ConnectionException e1) {
+        } catch (Database.ConnectionException e1) {
             e1.printStackTrace();
             System.out.println("Failed to create connection to database. Disabling MaxBans :(");
             this.getServer().getPluginManager().disablePlugin(this);
@@ -187,8 +152,7 @@ public class MaxBans extends JavaPlugin {
             if (syncConfig.getBoolean("server", false)) {
                 try {
                     (this.syncServer = new SyncServer(port2, pass2)).start();
-                }
-                catch (IOException e2) {
+                } catch (IOException e2) {
                     e2.printStackTrace();
                     this.getLogger().info("Could not start sync server!");
                 }
@@ -196,8 +160,7 @@ public class MaxBans extends JavaPlugin {
 
             (this.syncer = new Syncer(host, port2, pass2)).start();
             this.banManager = new SyncBanManager(this);
-        }
-        else {
+        } else {
             this.banManager = new BanManager(this);
         }
 
@@ -206,18 +169,17 @@ public class MaxBans extends JavaPlugin {
 
         if (Bukkit.getPluginManager().getPlugin("Herochat") != null) {
             this.getLogger().info("Found Herochat... Hooking!");
-            this.herochatListener = new HeroChatListener(this);
-            Bukkit.getServer().getPluginManager().registerEvents(this.herochatListener, this);
-        }
-        else {
-            this.chatListener = new ChatListener(this);
-            Bukkit.getServer().getPluginManager().registerEvents(this.chatListener, this);
+            HeroChatListener herochatListener = new HeroChatListener(this);
+            Bukkit.getServer().getPluginManager().registerEvents(herochatListener, this);
+        } else {
+            ChatListener chatListener = new ChatListener(this);
+            Bukkit.getServer().getPluginManager().registerEvents(chatListener, this);
         }
 
-        this.joinListener = new JoinListener();
-        this.chatCommandListener = new ChatCommandListener();
-        Bukkit.getServer().getPluginManager().registerEvents(this.joinListener, this);
-        Bukkit.getServer().getPluginManager().registerEvents(this.chatCommandListener, this);
+        JoinListener joinListener = new JoinListener();
+        ChatCommandListener chatCommandListener = new ChatCommandListener();
+        Bukkit.getServer().getPluginManager().registerEvents(joinListener, this);
+        Bukkit.getServer().getPluginManager().registerEvents(chatCommandListener, this);
         this.startMetrics();
 
         if (this.isBungee()) {
@@ -225,11 +187,11 @@ public class MaxBans extends JavaPlugin {
             Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
         }
     }
-    
+
     public boolean isBungee() {
         return MaxBans.instance.getConfig().getBoolean("bungee");
     }
-    
+
     public void onDisable() {
         this.getLogger().info("Disabling Maxbans...");
 
@@ -248,15 +210,15 @@ public class MaxBans extends JavaPlugin {
         this.getLogger().info("Cleared buffer...");
         MaxBans.instance = null;
     }
-    
+
     public BanManager getBanManager() {
         return this.banManager;
     }
-    
+
     public Database getDB() {
         return this.db;
     }
-    
+
     public void registerCommands() {
         new BanCommand();
         new IPBanCommand();
@@ -288,7 +250,7 @@ public class MaxBans extends JavaPlugin {
         new TempRangeBanCommand();
         new UnbanRangeCommand();
     }
-    
+
     public void startMetrics() {
         try {
             if (this.metrics != null) {
@@ -319,41 +281,37 @@ public class MaxBans extends JavaPlugin {
                     return MaxBans.this.getBanManager().getMutes().size();
                 }
             });
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Metrics start failed");
         }
     }
-    
+
     public Metrics getMetrics() {
         return this.metrics;
     }
-    
+
     public Syncer getSyncer() {
         return this.syncer;
-    }
-    
-    static /* synthetic */ void access$0(final MaxBans maxBans, final GeoIPDatabase geoIPDB) {
-        maxBans.geoIPDB = geoIPDB;
     }
 
     /**
      * Unzip it
+     *
      * @param zipFile input zip file
      */
-    public void unZipIt(String zipFile){
+    public void unZipIt(String zipFile) {
 
         byte[] buffer = new byte[1024];
 
-        try{
+        try {
             //get the zip file content
             ZipInputStream zis =
                     new ZipInputStream(new FileInputStream(zipFile));
             //get the zipped file list entry
             ZipEntry ze = zis.getNextEntry();
 
-            while(ze!=null){
+            while (ze != null) {
 
                 String fileName = ze.getName();
                 File newFile = new File(this.getDataFolder(), File.separator + fileName);
@@ -376,7 +334,7 @@ public class MaxBans extends JavaPlugin {
             zis.closeEntry();
             zis.close();
 
-        }catch(IOException ex){
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
     }

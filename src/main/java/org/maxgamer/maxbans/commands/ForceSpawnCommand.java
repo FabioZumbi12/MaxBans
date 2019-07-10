@@ -13,7 +13,7 @@ public class ForceSpawnCommand extends CmdSkeleton {
     public ForceSpawnCommand() {
         super("forcespawn", "maxbans.forcespawn");
     }
-    
+
     public boolean run(final CommandSender sender, final Command cmd, final String label, final String[] args) {
         if (args.length > 0) {
             final String name = args[0];
@@ -21,8 +21,7 @@ public class ForceSpawnCommand extends CmdSkeleton {
 
             if (sender instanceof Player) {
                 banner = sender.getName();
-            }
-            else {
+            } else {
                 banner = "Console";
             }
 
@@ -36,8 +35,7 @@ public class ForceSpawnCommand extends CmdSkeleton {
                 p.teleport(spawn, PlayerTeleportEvent.TeleportCause.PLUGIN);
                 p.sendMessage(Formatter.secondary + "Forced to the spawn by " + banner);
                 sender.sendMessage(Formatter.primary + "Forced " + Formatter.secondary + p.getName() + Formatter.primary + " to the spawn.");
-            }
-            else {
+            } else {
                 sender.sendMessage(Formatter.primary + "No player found: " + Formatter.secondary + name);
             }
 

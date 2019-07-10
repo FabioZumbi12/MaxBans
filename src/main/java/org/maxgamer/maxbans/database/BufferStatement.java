@@ -1,22 +1,22 @@
 package org.maxgamer.maxbans.database;
 
-import java.util.Arrays;
-import java.sql.SQLException;
-import java.sql.PreparedStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Arrays;
 
 public class BufferStatement {
     private final Object[] values;
     private final String query;
     private final Exception stacktrace;
-    
+
     public BufferStatement(final String query, final Object... values) {
         super();
         this.query = query;
         this.values = values;
         (this.stacktrace = new Exception()).fillInStackTrace();
     }
-    
+
     public PreparedStatement prepareStatement(final Connection con) throws SQLException {
         final PreparedStatement ps = con.prepareStatement(this.query);
 
@@ -26,11 +26,11 @@ public class BufferStatement {
 
         return ps;
     }
-    
+
     public StackTraceElement[] getStackTrace() {
         return this.stacktrace.getStackTrace();
     }
-    
+
     public String toString() {
         return "Query: " + this.query + ", values: " + Arrays.toString(this.values);
     }

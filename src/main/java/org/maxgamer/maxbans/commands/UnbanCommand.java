@@ -1,17 +1,17 @@
 package org.maxgamer.maxbans.commands;
 
-import org.maxgamer.maxbans.banmanager.Ban;
-import org.maxgamer.maxbans.banmanager.IPBan;
-import org.maxgamer.maxbans.Msg;
-import org.maxgamer.maxbans.util.Util;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.maxgamer.maxbans.Msg;
+import org.maxgamer.maxbans.banmanager.Ban;
+import org.maxgamer.maxbans.banmanager.IPBan;
+import org.maxgamer.maxbans.util.Util;
 
 public class UnbanCommand extends CmdSkeleton {
     public UnbanCommand() {
         super("unban", "maxbans.unban");
     }
-    
+
     public boolean run(final CommandSender sender, final Command cmd, final String label, final String[] args) {
         if (args.length <= 0) {
             sender.sendMessage(this.getUsage());
@@ -33,11 +33,10 @@ public class UnbanCommand extends CmdSkeleton {
 
             if (ipban != null) {
                 this.plugin.getBanManager().unbanip(ip);
-                final String msg = Msg.get("announcement.player-was-unbanned", new String[] { "banner", "name" }, new String[] { banner, name });
+                final String msg = Msg.get("announcement.player-was-unbanned", new String[]{"banner", "name"}, new String[]{banner, name});
                 this.plugin.getBanManager().announce(msg, silent, sender);
                 this.plugin.getBanManager().addHistory(name, banner, msg);
-            }
-            else {
+            } else {
                 final String msg = Msg.get("error.no-ban-found", "name", ip);
                 sender.sendMessage(msg);
             }
@@ -64,7 +63,7 @@ public class UnbanCommand extends CmdSkeleton {
             this.plugin.getBanManager().unbanip(ip);
         }
 
-        final String message = Msg.get("announcement.player-was-unbanned", new String[] { "banner", "name" }, new String[] { banner, name });
+        final String message = Msg.get("announcement.player-was-unbanned", new String[]{"banner", "name"}, new String[]{banner, name});
         this.plugin.getBanManager().announce(message, silent, sender);
         this.plugin.getBanManager().addHistory(name, banner, message);
         return true;

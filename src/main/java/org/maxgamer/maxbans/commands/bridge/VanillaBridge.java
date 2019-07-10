@@ -2,21 +2,18 @@ package org.maxgamer.maxbans.commands.bridge;
 
 import org.bukkit.BanEntry;
 import org.bukkit.BanList;
-import org.bukkit.OfflinePlayer;
-
-import org.maxgamer.maxbans.banmanager.TempIPBan;
-import org.maxgamer.maxbans.banmanager.IPBan;
 import org.bukkit.Bukkit;
-import org.maxgamer.maxbans.banmanager.TempBan;
+import org.maxgamer.maxbans.MaxBans;
 import org.maxgamer.maxbans.banmanager.Ban;
+import org.maxgamer.maxbans.banmanager.IPBan;
+import org.maxgamer.maxbans.banmanager.TempBan;
+import org.maxgamer.maxbans.banmanager.TempIPBan;
 
 import java.util.Map;
 
-import org.maxgamer.maxbans.MaxBans;
-
 public class VanillaBridge implements Bridge {
 
-	public void export() {
+    public void export() {
         System.out.println("Exporting to Vanilla bans...");
         final MaxBans plugin = MaxBans.instance;
 
@@ -43,7 +40,7 @@ public class VanillaBridge implements Bridge {
             ban.addBan(entry2.getKey(), entry2.getValue().getReason(), null, null);
         }
     }
-    
+
     public void load() {
         System.out.println("Importing from Vanilla bans...");
         final MaxBans plugin = MaxBans.instance;

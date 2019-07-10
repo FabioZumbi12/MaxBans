@@ -1,19 +1,19 @@
 package org.maxgamer.maxbans.commands.bridge;
 
-import java.io.File;
-import java.util.Set;
-
 import org.apache.commons.lang.NotImplementedException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.maxgamer.maxbans.MaxBans;
 import org.maxgamer.maxbans.util.Util;
 
+import java.io.File;
+import java.util.Set;
+
 public class DynamicBanBridge implements Bridge {
     public void export() {
         throw new NotImplementedException("DynamicBan export is not implemented.");
     }
-    
+
     public void load() {
         final MaxBans plugin = MaxBans.instance;
         final File folder = new File("plugins/DynamicBan/data");
@@ -42,8 +42,7 @@ public class DynamicBanBridge implements Bridge {
         for (final String s3 : tempbans) {
             if (Util.isIP(s3)) {
                 plugin.getBanManager().tempipban(s3, "Misconduct", "Console", cfg.getLong(s3) * 1000L);
-            }
-            else {
+            } else {
                 plugin.getBanManager().tempban(s3, "Misconduct", "Console", cfg.getLong(s3) * 1000L);
             }
         }

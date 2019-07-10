@@ -1,8 +1,8 @@
 package org.maxgamer.maxbans.util;
 
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.ChatColor;
 
 public class Formatter {
     public static ChatColor primary;
@@ -11,7 +11,7 @@ public class Formatter {
     public static ChatColor banner;
     public static ChatColor reason;
     public static ChatColor time;
-    
+
     public static void load(final Plugin plugin) {
         Formatter.primary = getColor(plugin.getConfig().getString("color.primary"));
         Formatter.secondary = getColor(plugin.getConfig().getString("color.secondary"));
@@ -21,7 +21,7 @@ public class Formatter {
         Formatter.reason = getColor(cfg.getString("reason"));
         Formatter.time = getColor(cfg.getString("time"));
     }
-    
+
     public static ChatColor getColor(final String s) {
         ChatColor col = ChatColor.getByChar(s);
 

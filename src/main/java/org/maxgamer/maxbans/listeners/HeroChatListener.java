@@ -1,25 +1,25 @@
 package org.maxgamer.maxbans.listeners;
 
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.EventHandler;
-import org.maxgamer.maxbans.banmanager.Mute;
-import org.bukkit.entity.Player;
-import com.dthielke.herochat.Chatter;
-import org.maxgamer.maxbans.util.Util;
-import org.bukkit.ChatColor;
-import org.maxgamer.maxbans.banmanager.TempMute;
 import com.dthielke.herochat.ChannelChatEvent;
-import org.maxgamer.maxbans.MaxBans;
+import com.dthielke.herochat.Chatter;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.maxgamer.maxbans.MaxBans;
+import org.maxgamer.maxbans.banmanager.Mute;
+import org.maxgamer.maxbans.banmanager.TempMute;
+import org.maxgamer.maxbans.util.Util;
 
 public class HeroChatListener implements Listener {
     private final MaxBans plugin;
-    
+
     public HeroChatListener(final MaxBans plugin) {
         super();
         this.plugin = plugin;
     }
-    
+
     @EventHandler(priority = EventPriority.NORMAL)
     public void onHeroChat(final ChannelChatEvent e) {
         final Player p = e.getSender().getPlayer();
@@ -31,10 +31,9 @@ public class HeroChatListener implements Listener {
             }
 
             if (mute instanceof TempMute) {
-                final TempMute tMute = (TempMute)mute;
+                final TempMute tMute = (TempMute) mute;
                 p.sendMessage(ChatColor.RED + "You're muted for another " + Util.getTimeUntil(tMute.getExpires()));
-            }
-            else {
+            } else {
                 p.sendMessage(ChatColor.RED + "You're muted!");
             }
 

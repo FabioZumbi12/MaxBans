@@ -2,15 +2,11 @@ package org.maxgamer.maxbans.geoip;
 
 import org.maxgamer.maxbans.util.IPAddress;
 
-import java.util.List;
-import java.util.NavigableSet;
-import java.util.regex.Matcher;
-import java.util.LinkedList;
-import java.util.regex.Pattern;
-import java.io.FileNotFoundException;
-import java.util.Scanner;
 import java.io.File;
-import java.util.TreeSet;
+import java.io.FileNotFoundException;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class GeoIPDatabase {
     public static final byte IP_VALUE_POS = 0;
@@ -18,7 +14,13 @@ public class GeoIPDatabase {
     public static final byte IP_COUNTRY_POS = 5;
     private final NavigableSet<GeoIP> info = new TreeSet<>();
     private final File file;
-    
+
+    public GeoIPDatabase(final File csv) {
+        super();
+        this.file = csv;
+        this.reload();
+    }
+
     public void reload() {
         if (this.file == null || !this.file.exists()) {
             System.out.println("WARNING: Could not load GeoIPDatabase. The file does not exist.");
@@ -29,8 +31,7 @@ public class GeoIPDatabase {
 
         try {
             sc = new Scanner(this.file);
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
             return;
         }
@@ -68,8 +69,7 @@ public class GeoIPDatabase {
 
                 final GeoIP ip = new GeoIP(Long.parseLong(p[2]), p[0]);
                 this.info.add(ip);
-            }
-            catch (Exception e2) {
+            } catch (Exception e2) {
                 System.out.println("Error on line #" + line + " of GeoIPDatabase.");
                 e2.printStackTrace();
             }
@@ -77,13 +77,7 @@ public class GeoIPDatabase {
 
         sc.close();
     }
-    
-    public GeoIPDatabase(final File csv) {
-        super();
-        this.file = csv;
-        this.reload();
-    }
-    
+
     public String getCountry(final String ip) {
         final IPAddress data = new IPAddress(ip);
         final long value = this.getCode(data);
@@ -96,7 +90,7 @@ public class GeoIPDatabase {
 
         return result.getCountry();
     }
-    
+
     private long getCode(final IPAddress data) {
         final int[] bytes = data.getBytes();
         long value = 0L;

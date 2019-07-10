@@ -9,7 +9,7 @@ import java.util.List;
 
 public class Database {
     private DatabaseCore core;
-    
+
     public Database(final DatabaseCore core) throws ConnectionException {
         super();
         try {
@@ -17,29 +17,28 @@ public class Database {
                 if (!core.getConnection().isValid(10)) {
                     throw new ConnectionException("Database doesn not appear to be valid!");
                 }
+            } catch (AbstractMethodError ignored) {
             }
-            catch (AbstractMethodError ignored) {}
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new ConnectionException(e.getMessage());
         }
 
         this.core = core;
     }
-    
+
     public DatabaseCore getCore() {
         return this.core;
     }
-    
+
     public Connection getConnection() {
         return this.core.getConnection();
     }
-    
+
     public void execute(final String query, final Object... objs) {
         final BufferStatement bs = new BufferStatement(query, objs);
         this.core.queue(bs);
     }
-    
+
     public boolean hasTable(final String table) throws SQLException {
         final ResultSet rs = this.getConnection().getMetaData().getTables(null, null, "%", null);
 
@@ -53,11 +52,11 @@ public class Database {
         rs.close();
         return false;
     }
-    
+
     public void close() {
         this.core.close();
     }
-    
+
     public boolean hasColumn(final String table, final String column) throws SQLException {
         if (!this.hasTable(table)) {
             return false;
@@ -73,14 +72,13 @@ public class Database {
                 rs.getString(column);
                 return true;
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             return false;
         }
 
         return false;
     }
-    
+
     public void copyTo(final Database db) throws SQLException {
         ResultSet rs = this.getConnection().getMetaData().getTables(null, null, "%", null);
         final List<String> tables = new LinkedList<>();
@@ -133,10 +131,10 @@ public class Database {
         db.getConnection().close();
         this.getConnection().close();
     }
-    
+
     public static class ConnectionException extends Exception {
         private static final long serialVersionUID = 8348749992936357317L;
-        
+
         public ConnectionException(final String msg) {
             super(msg);
         }

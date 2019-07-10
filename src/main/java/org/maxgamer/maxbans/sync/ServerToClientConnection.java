@@ -1,20 +1,21 @@
 package org.maxgamer.maxbans.sync;
 
 import org.bukkit.Bukkit;
+import org.maxgamer.maxbans.util.InputStreamWrapper;
+import org.maxgamer.maxbans.util.OutputStreamWrapper;
+
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.io.ByteArrayOutputStream;
-import org.maxgamer.maxbans.util.OutputStreamWrapper;
-import org.maxgamer.maxbans.util.InputStreamWrapper;
 import java.net.Socket;
 
 public class ServerToClientConnection {
+    private final Thread socketListener;
     private Socket socket;
     private SyncServer server;
     private InputStreamWrapper in;
     private OutputStreamWrapper out;
-    private final Thread socketListener;
-    
+
     public ServerToClientConnection(final SyncServer server, final Socket s) {
         super();
         this.socketListener = new Thread() {
@@ -29,8 +30,8 @@ public class ServerToClientConnection {
 
                     try {
                         Thread.sleep(500L);
+                    } catch (InterruptedException ignored) {
                     }
-                    catch (InterruptedException ignored) {}
 
                     final ByteArrayOutputStream read = new ByteArrayOutputStream();
                     byte b;
@@ -47,8 +48,7 @@ public class ServerToClientConnection {
 
                     try {
                         data = new String(read.toByteArray(), "ISO-8859-1");
-                    }
-                    catch (UnsupportedEncodingException e) {
+                    } catch (UnsupportedEncodingException e) {
                         e.printStackTrace();
                         return;
                     }
@@ -59,15 +59,13 @@ public class ServerToClientConnection {
 
                             ServerToClientConnection.log(ServerToClientConnection.this + " failed to send correct password! Disconnecting.");
                             ServerToClientConnection.this.close();
-                        }
-                        else {
+                        } else {
                             p = new Packet("connect");
                             ServerToClientConnection.this.write(p);
                             ServerToClientConnection.log("Connection Authenticated!");
                             ServerToClientConnection.this.server.getBlacklist().remove(ServerToClientConnection.this.socket.getInetAddress().getHostAddress());
                         }
-                    }
-                    catch (Exception e2) {
+                    } catch (Exception e2) {
                         e2.printStackTrace();
                         ServerToClientConnection.log("Received malformed packet before authorising. Closing. Packet: " + data);
                         ServerToClientConnection.this.socket.close();
@@ -86,8 +84,7 @@ public class ServerToClientConnection {
 
                         try {
                             p = Packet.unserialize(data);
-                        }
-                        catch (Exception e2) {
+                        } catch (Exception e2) {
                             e2.printStackTrace();
                             ServerToClientConnection.log("Received malformed packet: " + data);
                             continue;
@@ -98,8 +95,7 @@ public class ServerToClientConnection {
                             ServerToClientConnection.this.server.sendAll(p, ServerToClientConnection.this);
                         }
                     }
-                }
-                catch (IOException e3) {
+                } catch (IOException e3) {
                     ServerToClientConnection.log("Client disconnected.");
 
                     if (SyncUtil.isDebug()) {
@@ -108,8 +104,8 @@ public class ServerToClientConnection {
 
                     try {
                         ServerToClientConnection.this.socket.close();
+                    } catch (IOException ignored) {
                     }
-                    catch (IOException ignored) {}
                 }
 
                 if (SyncUtil.isDebug()) {
@@ -122,24 +118,36 @@ public class ServerToClientConnection {
         this.socket = s;
         this.server = server;
     }
-    
+
+    public static void log(final String s) {
+        Bukkit.getConsoleSender().sendMessage("[MaxBans-SyncServer] " + s);
+    }
+
+    static /* synthetic */ void access$1(final ServerToClientConnection serverToClientConnection, final InputStreamWrapper in) {
+        serverToClientConnection.in = in;
+    }
+
+    static /* synthetic */ void access$2(final ServerToClientConnection serverToClientConnection, final OutputStreamWrapper out) {
+        serverToClientConnection.out = out;
+    }
+
     public void start() {
         this.socketListener.setDaemon(true);
         this.socketListener.start();
     }
-    
+
     public boolean isOpen() {
         return !this.socket.isClosed();
     }
-    
+
     public void close() {
         try {
             log("Closing connection!");
             this.socket.close();
+        } catch (IOException ignored) {
         }
-        catch (IOException ignored) {}
     }
-    
+
     public void write(final Packet p) {
         if (SyncUtil.isDebug()) {
             log("Writing " + p.serialize());
@@ -147,20 +155,8 @@ public class ServerToClientConnection {
 
         this.out.write(p.serialize());
     }
-    
-    public static void log(final String s) {
-        Bukkit.getConsoleSender().sendMessage("[MaxBans-SyncServer] " + s);
-    }
-    
+
     public String toString() {
         return "Server->Client Connection (" + this.socket.getInetAddress().getHostAddress() + ") " + "Open: " + (this.socket != null && !this.socket.isClosed() && this.socket.isConnected());
-    }
-    
-    static /* synthetic */ void access$1(final ServerToClientConnection serverToClientConnection, final InputStreamWrapper in) {
-        serverToClientConnection.in = in;
-    }
-    
-    static /* synthetic */ void access$2(final ServerToClientConnection serverToClientConnection, final OutputStreamWrapper out) {
-        serverToClientConnection.out = out;
     }
 }

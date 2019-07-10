@@ -1,21 +1,21 @@
 package org.maxgamer.maxbans.commands;
 
-import org.maxgamer.maxbans.banmanager.IPBan;
-import org.maxgamer.maxbans.banmanager.Ban;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.maxgamer.maxbans.banmanager.TempIPBan;
-import org.maxgamer.maxbans.banmanager.TempBan;
-import org.maxgamer.maxbans.MaxBans;
-import org.maxgamer.maxbans.Msg;
-import org.maxgamer.maxbans.util.Util;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.maxgamer.maxbans.MaxBans;
+import org.maxgamer.maxbans.Msg;
+import org.maxgamer.maxbans.banmanager.Ban;
+import org.maxgamer.maxbans.banmanager.IPBan;
+import org.maxgamer.maxbans.banmanager.TempBan;
+import org.maxgamer.maxbans.banmanager.TempIPBan;
+import org.maxgamer.maxbans.util.Util;
 
 public class TempBanCommand extends CmdSkeleton {
     public TempBanCommand() {
         super("tempban", "maxbans.tempban");
     }
-    
+
     public boolean run(final CommandSender sender, final Command cmd, final String label, final String[] args) {
         if (args.length < 3) {
             sender.sendMessage(this.getUsage());
@@ -43,8 +43,7 @@ public class TempBanCommand extends CmdSkeleton {
 
         try {
             tempbanTime = conf.getLong("MaxTempbanTime");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             tempbanTime = 604800L;
         }
 
@@ -76,7 +75,7 @@ public class TempBanCommand extends CmdSkeleton {
                     return true;
                 }
 
-                final TempBan tBan = (TempBan)ban;
+                final TempBan tBan = (TempBan) ban;
 
                 if (tBan.getExpires() > expires) {
                     final String msg2 = Msg.get("error.tempban-shorter-than-last");
@@ -88,13 +87,12 @@ public class TempBanCommand extends CmdSkeleton {
             }
 
             this.plugin.getBanManager().tempban(name, reason, banner, expires);
-        }
-        else {
+        } else {
             final String ip = name;
             final IPBan ipban = this.plugin.getBanManager().getIPBan(ip);
 
             if (ipban != null && ipban instanceof TempIPBan) {
-                final TempIPBan tiBan = (TempIPBan)ipban;
+                final TempIPBan tiBan = (TempIPBan) ipban;
 
                 if (tiBan.getExpires() > expires) {
                     final String msg3 = Msg.get("error.tempipban-shorter-than-last");
@@ -108,7 +106,7 @@ public class TempBanCommand extends CmdSkeleton {
             this.plugin.getBanManager().tempipban(ip, reason, banner, expires);
         }
 
-        final String message = Msg.get("announcement.player-was-tempbanned", new String[] { "banner", "name", "reason", "time" }, new String[] { banner, name, reason, Util.getTimeUntil(expires) });
+        final String message = Msg.get("announcement.player-was-tempbanned", new String[]{"banner", "name", "reason", "time"}, new String[]{banner, name, reason, Util.getTimeUntil(expires)});
         this.plugin.getBanManager().announce(message, silent, sender);
         this.plugin.getBanManager().addHistory(name, banner, message);
         return true;

@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public class IPAddress implements Comparable<IPAddress> {
     private final int[] bytes;
-    
+
     public IPAddress(final String s) {
         super();
         this.bytes = new int[4];
@@ -18,11 +18,11 @@ public class IPAddress implements Comparable<IPAddress> {
             this.bytes[i] = Integer.parseInt(t[i]);
         }
     }
-    
+
     public int[] getBytes() {
         return this.bytes.clone();
     }
-    
+
     public int compareTo(final IPAddress ip) {
         final int[] bytes = ip.getBytes();
 
@@ -39,28 +39,28 @@ public class IPAddress implements Comparable<IPAddress> {
         }
         return 0;
     }
-    
+
     public boolean isGreaterThan(final IPAddress ip) {
         return this.compareTo(ip) == 1;
     }
-    
+
     public boolean isLessThan(final IPAddress ip) {
         return this.compareTo(ip) == -1;
     }
-    
+
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
 
         if (o instanceof IPAddress) {
-            final IPAddress ip = (IPAddress)o;
+            final IPAddress ip = (IPAddress) o;
             return ip.bytes.equals(this.bytes);
         }
 
         return false;
     }
-    
+
     public String toString() {
         final StringBuilder sb = new StringBuilder(String.valueOf(this.bytes[0]));
 
@@ -70,7 +70,7 @@ public class IPAddress implements Comparable<IPAddress> {
 
         return sb.toString();
     }
-    
+
     public int hashCode() {
         return Arrays.hashCode(this.bytes);
     }

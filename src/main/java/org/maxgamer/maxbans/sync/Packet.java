@@ -4,76 +4,28 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Packet {
-    private String command;
-    private Map<String, String> values;
     private static String[] escapers;
     private static String[] unescapers;
-    
+
     static {
-        Packet.escapers = new String[] { "-", "\\n", "@" };
-        Packet.unescapers = new String[] { "\\-", "\\\\n", "\\@" };
+        Packet.escapers = new String[]{"-", "\\n", "@"};
+        Packet.unescapers = new String[]{"\\-", "\\\\n", "\\@"};
     }
-    
+
+    private String command;
+    private Map<String, String> values;
+
     public Packet() {
         super();
         this.values = new HashMap<>();
     }
-    
+
     public Packet(final String command) {
         super();
         this.values = new HashMap<>();
         this.command = command;
     }
-    
-    public Packet put(final String key, final String value) {
-        this.values.put(key, value);
-        return this;
-    }
-    
-    public Packet remove(final String key) {
-        this.values.remove(key);
-        return this;
-    }
-    
-    public Packet put(final String key, final Object value) {
-        this.put(key, String.valueOf(value));
-        return this;
-    }
-    
-    public String get(final String key) {
-        return this.values.get(key);
-    }
-    
-    public String getCommand() {
-        return this.command;
-    }
-    
-    public boolean has(final String key) {
-        return this.values.containsKey(key);
-    }
-    
-    public Packet setCommand(final String type) {
-        this.command = type;
-        return this;
-    }
-    
-    public Map<String, String> getProperties() {
-        return this.values;
-    }
-    
-    public String serialize() {
-        final StringBuilder sb = new StringBuilder("@").append(this.getCommand());
 
-        for (final Map.Entry<String, String> entry : this.values.entrySet()) {
-            sb.append(" -" + entry.getKey());
-
-            if (entry.getValue() != null && !entry.getValue().isEmpty()) {
-                sb.append(" ").append(escape(entry.getValue()));
-            }
-        }
-        return sb.toString();
-    }
-    
     public static Packet unserialize(final String serial) {
         final Packet prop = new Packet();
         final String[] parts = serial.split(" -");
@@ -98,7 +50,7 @@ public class Packet {
 
         return prop;
     }
-    
+
     private static String escape(String s) {
         for (int i = 0; i < Packet.escapers.length; ++i) {
             s = s.replace(Packet.escapers[i], Packet.unescapers[i]);
@@ -106,7 +58,7 @@ public class Packet {
 
         return s;
     }
-    
+
     private static String unescape(String s) {
         for (int i = 0; i < Packet.escapers.length; ++i) {
             s = s.replace(Packet.unescapers[i], Packet.escapers[i]);
@@ -114,10 +66,59 @@ public class Packet {
 
         return s;
     }
-    
+
+    public Packet put(final String key, final String value) {
+        this.values.put(key, value);
+        return this;
+    }
+
+    public Packet remove(final String key) {
+        this.values.remove(key);
+        return this;
+    }
+
+    public Packet put(final String key, final Object value) {
+        this.put(key, String.valueOf(value));
+        return this;
+    }
+
+    public String get(final String key) {
+        return this.values.get(key);
+    }
+
+    public String getCommand() {
+        return this.command;
+    }
+
+    public Packet setCommand(final String type) {
+        this.command = type;
+        return this;
+    }
+
+    public boolean has(final String key) {
+        return this.values.containsKey(key);
+    }
+
+    public Map<String, String> getProperties() {
+        return this.values;
+    }
+
+    public String serialize() {
+        final StringBuilder sb = new StringBuilder("@").append(this.getCommand());
+
+        for (final Map.Entry<String, String> entry : this.values.entrySet()) {
+            sb.append(" -" + entry.getKey());
+
+            if (entry.getValue() != null && !entry.getValue().isEmpty()) {
+                sb.append(" ").append(escape(entry.getValue()));
+            }
+        }
+        return sb.toString();
+    }
+
     public boolean equals(final Object o) {
         if (o != null && o instanceof Packet) {
-            final Packet p = (Packet)o;
+            final Packet p = (Packet) o;
 
             if (p.getProperties().equals(this.getProperties()) && p.getCommand().equals(this.getCommand())) {
                 return true;

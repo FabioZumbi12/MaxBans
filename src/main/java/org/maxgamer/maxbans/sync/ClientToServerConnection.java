@@ -1,35 +1,36 @@
 package org.maxgamer.maxbans.sync;
 
 import org.bukkit.Bukkit;
-import org.maxgamer.maxbans.banmanager.RangeBan;
-import org.maxgamer.maxbans.util.IPAddress;
-import org.maxgamer.maxbans.util.DNSBL;
-import java.util.List;
-import org.maxgamer.maxbans.banmanager.Warn;
 import org.maxgamer.maxbans.MaxBans;
+import org.maxgamer.maxbans.banmanager.RangeBan;
 import org.maxgamer.maxbans.banmanager.SyncBanManager;
-import java.net.UnknownHostException;
-import java.io.IOException;
-import org.maxgamer.maxbans.util.OutputStreamWrapper;
+import org.maxgamer.maxbans.banmanager.Warn;
+import org.maxgamer.maxbans.util.DNSBL;
+import org.maxgamer.maxbans.util.IPAddress;
 import org.maxgamer.maxbans.util.InputStreamWrapper;
-import java.util.LinkedList;
+import org.maxgamer.maxbans.util.OutputStreamWrapper;
+
+import java.io.IOException;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 public class ClientToServerConnection {
     public static final int CONNECT_FAIL_DELAY = 5000;
+    private final Map<String, Command> commands = new HashMap<>();
+    private final LinkedList<Packet> queue = new LinkedList<>();
+    private final Thread watcher;
     private boolean reconnect;
     private String host;
     private int port;
     private String pass;
-    private final Map<String, Command> commands = new HashMap<>();
     private Socket socket;
-    private final LinkedList<Packet> queue = new LinkedList<>();
     private InputStreamWrapper in;
     private OutputStreamWrapper out;
-    private final Thread watcher;
-    
+
     public ClientToServerConnection(final String host, final int port, final String pass) {
         super();
         this.reconnect = true;
@@ -39,8 +40,8 @@ public class ClientToServerConnection {
                     if (ClientToServerConnection.this.socket != null) {
                         try {
                             ClientToServerConnection.this.socket.close();
+                        } catch (IOException ignored) {
                         }
-                        catch (IOException ignored) {}
                     }
 
                     try {
@@ -56,28 +57,26 @@ public class ClientToServerConnection {
                             ClientToServerConnection.this.close();
                             continue;
                         }
-                    }
-                    catch (UnknownHostException e3) {
+                    } catch (UnknownHostException e3) {
                         if (SyncUtil.isDebug()) {
                             ClientToServerConnection.log("Connection failed (UnknownHostException), retrying.");
                         }
 
                         try {
                             Thread.sleep(5000L);
+                        } catch (InterruptedException ignored) {
                         }
-                        catch (InterruptedException ignored) {}
 
                         continue;
-                    }
-                    catch (IOException e4) {
+                    } catch (IOException e4) {
                         if (SyncUtil.isDebug()) {
                             ClientToServerConnection.log("Connection failed (IOException), retrying.");
                         }
 
                         try {
                             Thread.sleep(5000L);
+                        } catch (InterruptedException ignored) {
                         }
-                        catch (InterruptedException ignored) {}
 
                         continue;
                     }
@@ -97,8 +96,7 @@ public class ClientToServerConnection {
 
                             try {
                                 p = Packet.unserialize(data);
-                            }
-                            catch (Exception e) {
+                            } catch (Exception e) {
                                 e.printStackTrace();
                                 ClientToServerConnection.log("Malformed packet: " + data);
                                 continue;
@@ -109,21 +107,18 @@ public class ClientToServerConnection {
 
                                 if (c == null) {
                                     ClientToServerConnection.log("Unrecognised command: '" + p.getCommand() + "'... Is this version of MaxBans up to date?");
-                                }
-                                else {
-                                    final SyncBanManager sbm = (SyncBanManager)MaxBans.instance.getBanManager();
+                                } else {
+                                    final SyncBanManager sbm = (SyncBanManager) MaxBans.instance.getBanManager();
                                     sbm.startSync();
                                     c.run(p);
                                     sbm.stopSync();
                                 }
-                            }
-                            catch (Exception e) {
+                            } catch (Exception e) {
                                 e.printStackTrace();
                                 ClientToServerConnection.log("Failed to handle packet!");
                             }
                         } while (!ClientToServerConnection.this.socket.isClosed());
-                    }
-                    catch (Exception e2) {
+                    } catch (Exception e2) {
                         if (SyncUtil.isDebug()) {
                             e2.printStackTrace();
                         }
@@ -376,7 +371,23 @@ public class ClientToServerConnection {
         };
         this.commands.put("setimmunity", setimmunity);
     }
-    
+
+    public static void log(final String s) {
+        Bukkit.getConsoleSender().sendMessage("[MaxBans-Syncer] " + s);
+    }
+
+    static /* synthetic */ void access$4(final ClientToServerConnection clientToServerConnection, final Socket socket) {
+        clientToServerConnection.socket = socket;
+    }
+
+    static /* synthetic */ void access$5(final ClientToServerConnection clientToServerConnection, final InputStreamWrapper in) {
+        clientToServerConnection.in = in;
+    }
+
+    static /* synthetic */ void access$6(final ClientToServerConnection clientToServerConnection, final OutputStreamWrapper out) {
+        clientToServerConnection.out = out;
+    }
+
     public void start() {
         if (SyncUtil.isDebug()) {
             log("Starting network listener.");
@@ -385,7 +396,7 @@ public class ClientToServerConnection {
         this.watcher.setDaemon(true);
         this.watcher.start();
     }
-    
+
     public void write(final Packet p) {
         if (SyncUtil.isDebug()) {
             log("Writing packet: " + p.serialize());
@@ -393,8 +404,7 @@ public class ClientToServerConnection {
 
         try {
             this.out.write(p.serialize());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             if (SyncUtil.isDebug()) {
                 e.printStackTrace();
                 log("Queued data for transmission upon reconnection instead!");
@@ -406,41 +416,25 @@ public class ClientToServerConnection {
             // monitorexit(this.queue)
         }
     }
-    
+
     public boolean isReconnect() {
         return this.reconnect;
     }
-    
+
     public void setReconnect(final boolean reconnect) {
         this.reconnect = reconnect;
     }
-    
+
     public void close() {
         this.setReconnect(false);
         log("Closing connection!");
 
         try {
             this.socket.close();
+        } catch (IOException ignored) {
         }
-        catch (IOException ignored) {}
     }
-    
-    public static void log(final String s) {
-        Bukkit.getConsoleSender().sendMessage("[MaxBans-Syncer] " + s);
-    }
-    
-    static /* synthetic */ void access$4(final ClientToServerConnection clientToServerConnection, final Socket socket) {
-        clientToServerConnection.socket = socket;
-    }
-    
-    static /* synthetic */ void access$5(final ClientToServerConnection clientToServerConnection, final InputStreamWrapper in) {
-        clientToServerConnection.in = in;
-    }
-    
-    static /* synthetic */ void access$6(final ClientToServerConnection clientToServerConnection, final OutputStreamWrapper out) {
-        clientToServerConnection.out = out;
-    }
-    
+
     protected abstract static class Command {
         public abstract void run(final Packet p0);
     }

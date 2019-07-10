@@ -9,15 +9,16 @@ import java.util.List;
 import java.util.Properties;
 
 public class MySQLCore implements DatabaseCore {
-    private String url;
-    private Properties info;
     //private static final int MAX_CONNECTIONS = 8;
     private static List<Connection> pool;
-    
+
     static {
         MySQLCore.pool = new ArrayList<>();
     }
-    
+
+    private String url;
+    private Properties info;
+
     public MySQLCore(final String host, final String user, final String pass, final String database, final String port) {
         super();
         this.info = new Properties();
@@ -32,7 +33,7 @@ public class MySQLCore implements DatabaseCore {
             pool.add(null);
         }
     }
-    
+
     public Connection getConnection() {
         int i = 0;
 
@@ -47,8 +48,7 @@ public class MySQLCore implements DatabaseCore {
                 connection = DriverManager.getConnection(this.url, this.info);
                 MySQLCore.pool.set(i, connection);
                 return connection;
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 e.printStackTrace();
                 ++i;
             }
@@ -56,7 +56,7 @@ public class MySQLCore implements DatabaseCore {
 
         return null;
     }
-    
+
     public void queue(final BufferStatement bs) {
         try {
             final Connection con = this.getConnection();
@@ -64,8 +64,8 @@ public class MySQLCore implements DatabaseCore {
             while (con == null) {
                 try {
                     Thread.sleep(15L);
+                } catch (InterruptedException ignored) {
                 }
-                catch (InterruptedException ignored) {}
 
                 this.getConnection();
             }
@@ -73,16 +73,15 @@ public class MySQLCore implements DatabaseCore {
             final PreparedStatement ps = bs.prepareStatement(con);
             ps.execute();
             ps.close();
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-    
+
     public void close() {
 
     }
-    
+
     public void flush() {
 
     }

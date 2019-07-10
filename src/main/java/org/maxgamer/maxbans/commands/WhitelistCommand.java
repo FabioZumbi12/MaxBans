@@ -1,9 +1,9 @@
 package org.maxgamer.maxbans.commands;
 
-import org.maxgamer.maxbans.util.Formatter;
-import org.maxgamer.maxbans.util.Util;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.maxgamer.maxbans.util.Formatter;
+import org.maxgamer.maxbans.util.Util;
 
 public class WhitelistCommand extends CmdSkeleton {
     public WhitelistCommand() {
@@ -11,7 +11,7 @@ public class WhitelistCommand extends CmdSkeleton {
         this.minArgs = 1;
         this.namePos = 1;
     }
-    
+
     public boolean run(final CommandSender sender, final Command cmd, final String label, final String[] args) {
         final String name = this.plugin.getBanManager().match(args[0]);
         final String banner = Util.getName(sender);

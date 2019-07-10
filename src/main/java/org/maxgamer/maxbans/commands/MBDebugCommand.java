@@ -1,5 +1,9 @@
 package org.maxgamer.maxbans.commands;
 
+import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -9,20 +13,17 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 
-import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-
 public class MBDebugCommand extends CmdSkeleton {
     public MBDebugCommand() {
         super("mbdebug", "maxbans.debug");
         this.namePos = -1;
         this.minArgs = 1;
     }
-    
+
     public boolean run(final CommandSender sender, final Command command, final String label, final String[] args) {
         Printable out;
-        Label_0184: {
+        Label_0184:
+        {
             if (args[0].equalsIgnoreCase("file")) {
                 final File file = new File(this.plugin.getDataFolder(), "debug.txt");
 
@@ -36,8 +37,7 @@ public class MBDebugCommand extends CmdSkeleton {
                     };
                     ps.close();
                     break Label_0184;
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     sender.sendMessage("Failed to create debug file");
                     e.printStackTrace();
                     return true;
@@ -47,13 +47,12 @@ public class MBDebugCommand extends CmdSkeleton {
             if (args[0].equalsIgnoreCase("console")) {
                 out = new Printable() {
                     final CommandSender sender = Bukkit.getConsoleSender();
-                    
+
                     public void print(final String s) {
                         this.sender.sendMessage(s);
                     }
                 };
-            }
-            else {
+            } else {
                 if (!args[0].equalsIgnoreCase("chat")) {
                     sender.sendMessage("No such output method... " + args[0]);
                     sender.sendMessage("/mbdebug file - Outputs debug info to Server\\plugins\\MaxBans\\debug.txt");
@@ -77,7 +76,7 @@ public class MBDebugCommand extends CmdSkeleton {
         out.print("Bukkit: " + Bukkit.getServer().getBukkitVersion());
         out.print("Plugin: " + this.plugin.toString());
         out.print("IP: " + Bukkit.getIp() + ":" + Bukkit.getPort());
-        out.print("Server: " + Bukkit.getServerName());
+        out.print("Server: " + Bukkit.getName());
         out.print("Online-mode: " + Bukkit.getServer().getOnlineMode());
         out.print("Server String: " + Bukkit.getServer().toString());
         out.print("Package: " + Bukkit.getServer().getClass().getCanonicalName());
@@ -145,10 +144,10 @@ public class MBDebugCommand extends CmdSkeleton {
 
         return true;
     }
-    
+
     public abstract class Printable {
         public abstract void print(final String p0);
-        
+
         public void print(final Map<?, ?> map) {
             this.print("Map: " + map.getClass().getCanonicalName() + ", Size: " + map.size());
 
@@ -157,7 +156,7 @@ public class MBDebugCommand extends CmdSkeleton {
                 this.print(s);
             }
         }
-        
+
         public void print(final Collection<?> list) {
             this.print("Collection: " + list.getClass().getCanonicalName() + ", Size: " + list.size());
 
@@ -165,7 +164,7 @@ public class MBDebugCommand extends CmdSkeleton {
                 this.print(String.valueOf(value));
             }
         }
-        
+
         public <T> void print(final T[] array) {
             this.print("List: " + array.getClass().getCanonicalName() + ", Length: " + array.length);
 

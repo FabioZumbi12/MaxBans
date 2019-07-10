@@ -1,17 +1,17 @@
 package org.maxgamer.maxbans.commands;
 
-import org.maxgamer.maxbans.banmanager.Mute;
-import org.maxgamer.maxbans.banmanager.TempMute;
-import org.maxgamer.maxbans.Msg;
-import org.maxgamer.maxbans.util.Util;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.maxgamer.maxbans.Msg;
+import org.maxgamer.maxbans.banmanager.Mute;
+import org.maxgamer.maxbans.banmanager.TempMute;
+import org.maxgamer.maxbans.util.Util;
 
 public class TempMuteCommand extends CmdSkeleton {
     public TempMuteCommand() {
         super("tempmute", "maxbans.tempmute");
     }
-    
+
     public boolean run(final CommandSender sender, final Command cmd, final String label, final String[] args) {
         if (args.length <= 2) {
             sender.sendMessage(this.getUsage());
@@ -50,7 +50,7 @@ public class TempMuteCommand extends CmdSkeleton {
                 return true;
             }
 
-            final TempMute tMute = (TempMute)mute;
+            final TempMute tMute = (TempMute) mute;
 
             if (tMute.getExpires() > time) {
                 final String msg2 = Msg.get("tempmute-shorter-than-last");
@@ -62,7 +62,7 @@ public class TempMuteCommand extends CmdSkeleton {
         final String reason = Util.buildReason(args);
         this.plugin.getBanManager().tempmute(name, banner, reason, time);
         final String until = Util.getTimeUntil(time);
-        final String message = Msg.get("announcement.player-was-temp-muted", new String[] { "banner", "name", "time", "reason" }, new String[] { banner, name, until, reason });
+        final String message = Msg.get("announcement.player-was-temp-muted", new String[]{"banner", "name", "time", "reason"}, new String[]{banner, name, until, reason});
         this.plugin.getBanManager().addHistory(name, banner, message);
         this.plugin.getBanManager().announce(message, silent, sender);
         return true;

@@ -15,7 +15,7 @@ public class RangeBanCommand extends CmdSkeleton {
         super("rangeban", "maxbans.rangeban");
         this.minArgs = 1;
     }
-    
+
     public boolean run(final CommandSender sender, final Command cmd, final String label, final String[] args) {
         final String banner = Util.getName(sender);
         final boolean silent = Util.isSilent(args);
@@ -23,9 +23,8 @@ public class RangeBanCommand extends CmdSkeleton {
         String[] ips = args[0].split("-");
 
         if (ips.length == 1 && ips[0].contains("*")) {
-            ips = new String[] { ips[0].replace('*', '0'), ips[0].replace("*", "255") };
-        }
-        else if (ips.length != 2) {
+            ips = new String[]{ips[0].replace('*', '0'), ips[0].replace("*", "255")};
+        } else if (ips.length != 2) {
             sender.sendMessage(ChatColor.RED + "Not enough IP addresses supplied! Usage: " + this.getUsage());
             return true;
         }

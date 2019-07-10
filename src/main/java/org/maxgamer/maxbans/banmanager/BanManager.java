@@ -1,24 +1,5 @@
 package org.maxgamer.maxbans.banmanager;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.net.InetAddress;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NavigableSet;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.regex.Pattern;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -30,6 +11,16 @@ import org.maxgamer.maxbans.database.DatabaseHelper;
 import org.maxgamer.maxbans.util.DNSBL;
 import org.maxgamer.maxbans.util.Formatter;
 import org.maxgamer.maxbans.util.IPAddress;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.net.InetAddress;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.regex.Pattern;
 
 public class BanManager {
     protected final MaxBans plugin;
@@ -48,19 +39,15 @@ public class BanManager {
     private final TrieSet players = new TrieSet();
     private final Map<String, String> actualNames = new HashMap<>();
     private final Set<String> chatCommands = new HashSet<>();
+    private final Set<String> immunities = new HashSet<>();
+    private final NavigableSet<RangeBan> rangebans = new TreeSet<>();
+    public String defaultReason;
     private boolean lockdown;
     private String lockdownReason;
-    public String defaultReason;
     private String appealMessage;
     private Database db;
     private DNSBL dnsbl;
-    private final Set<String> immunities = new HashSet<>();
-    private final NavigableSet<RangeBan> rangebans = new TreeSet<>();
-    
-    public Set<String> getWhitelist() {
-        return this.whitelist;
-    }
-    
+
     public BanManager(final MaxBans plugin) {
         super();
         this.lockdown = false;
@@ -71,47 +58,51 @@ public class BanManager {
         this.db = plugin.getDB();
         this.reload();
     }
-    
+
+    public Set<String> getWhitelist() {
+        return this.whitelist;
+    }
+
     public String getAppealMessage() {
         return this.appealMessage;
     }
-    
+
     public void setAppealMessage(final String msg) {
         this.appealMessage = ChatColor.translateAlternateColorCodes('&', msg);
     }
-    
+
     public Map<String, Ban> getBans() {
         return this.bans;
     }
-    
+
     public Map<String, IPBan> getIPBans() {
         return this.ipbans;
     }
-    
+
     public Map<String, Mute> getMutes() {
         return this.mutes;
     }
-    
+
     public Map<String, TempBan> getTempBans() {
         return this.tempbans;
     }
-    
+
     public Map<String, TempIPBan> getTempIPBans() {
         return this.tempipbans;
     }
-    
+
     public Map<String, TempMute> getTempMutes() {
         return this.tempmutes;
     }
-    
+
     public Map<String, String> getPlayers() {
         return this.actualNames;
     }
-    
+
     public HistoryRecord[] getHistory() {
         return this.history.toArray(new HistoryRecord[this.history.size()]);
     }
-    
+
     public HistoryRecord[] getHistory(final String name) {
         final List<HistoryRecord> history = this.personalHistory.get(name);
 
@@ -121,7 +112,7 @@ public class BanManager {
 
         return new HistoryRecord[0];
     }
-    
+
     public void addHistory(String name, String banner, final String message) {
         name = name.toLowerCase();
         banner = banner.toLowerCase();
@@ -150,7 +141,7 @@ public class BanManager {
 
         personal.add(0, record);
     }
-    
+
     public void reload() {
         this.db = this.plugin.getDB();
         this.db.getCore().flush();
@@ -167,8 +158,7 @@ public class BanManager {
 
         try {
             DatabaseHelper.setup(this.db);
-        }
-        catch (SQLException e1) {
+        } catch (SQLException e1) {
             e1.printStackTrace();
         }
 
@@ -207,14 +197,12 @@ public class BanManager {
                     if (expires != 0L) {
                         final TempBan tb = new TempBan(name, reason, banner, time, expires);
                         this.tempbans.put(name.toLowerCase(), tb);
-                    }
-                    else {
+                    } else {
                         final Ban ban = new Ban(name, reason, banner, time);
                         this.bans.put(name.toLowerCase(), ban);
                     }
                 }
-            }
-            catch (Exception e2) {
+            } catch (Exception e2) {
                 e2.printStackTrace();
             }
 
@@ -240,14 +228,12 @@ public class BanManager {
                     if (expires != 0L) {
                         final TempIPBan tib = new TempIPBan(ip, reason, banner, time, expires);
                         this.tempipbans.put(ip, tib);
-                    }
-                    else {
+                    } else {
                         final IPBan ipban = new IPBan(ip, reason, banner, time);
                         this.ipbans.put(ip, ipban);
                     }
                 }
-            }
-            catch (Exception e2) {
+            } catch (Exception e2) {
                 e2.printStackTrace();
             }
 
@@ -274,14 +260,12 @@ public class BanManager {
                     if (expires != 0L) {
                         final TempMute tmute = new TempMute(name, banner2, reason2, time, expires);
                         this.tempmutes.put(name.toLowerCase(), tmute);
-                    }
-                    else {
+                    } else {
                         final Mute mute = new Mute(name, banner2, reason2, time);
                         this.mutes.put(name.toLowerCase(), mute);
                     }
                 }
-            }
-            catch (Exception e2) {
+            } catch (Exception e2) {
                 e2.printStackTrace();
             }
 
@@ -297,8 +281,7 @@ public class BanManager {
                     this.actualNames.put(name2, actual);
                     this.players.add(name2);
                 }
-            }
-            catch (Exception e2) {
+            } catch (Exception e2) {
                 e2.printStackTrace();
             }
             try {
@@ -318,8 +301,7 @@ public class BanManager {
                     }
                     list.add(name);
                 }
-            }
-            catch (Exception e2) {
+            } catch (Exception e2) {
                 e2.printStackTrace();
             }
 
@@ -350,8 +332,7 @@ public class BanManager {
                     }
                     warns.add(warn);
                 }
-            }
-            catch (Exception e2) {
+            } catch (Exception e2) {
                 e2.printStackTrace();
             }
 
@@ -362,8 +343,7 @@ public class BanManager {
                 for (final String s : cmds) {
                     this.addChatCommand(s);
                 }
-            }
-            catch (Exception e2) {
+            } catch (Exception e2) {
                 e2.printStackTrace();
             }
 
@@ -416,8 +396,7 @@ public class BanManager {
 
                     personal.add(record);
                 }
-            }
-            catch (Exception e2) {
+            } catch (Exception e2) {
                 e2.printStackTrace();
             }
 
@@ -429,8 +408,7 @@ public class BanManager {
                     final String name = rs.getString("name");
                     this.whitelist.add(name);
                 }
-            }
-            catch (Exception e2) {
+            } catch (Exception e2) {
                 e2.printStackTrace();
             }
 
@@ -449,23 +427,20 @@ public class BanManager {
 
                     if (expires2 == 0L) {
                         rb = new TempRangeBan(banner3, reason, created2, expires2, start, end);
-                    }
-                    else {
+                    } else {
                         rb = new RangeBan(banner3, reason, created2, start, end);
                     }
 
                     this.rangebans.add(rb);
                 }
-            }
-            catch (SQLException e3) {
+            } catch (SQLException e3) {
                 e3.printStackTrace();
                 this.plugin.getLogger().warning("Could not load rangebans!");
             }
 
             rs.close();
             ps.close();
-        }
-        catch (SQLException e4) {
+        } catch (SQLException e4) {
             this.plugin.getLogger().severe(Formatter.secondary + "Could not load database history using: " + query);
             e4.printStackTrace();
         }
@@ -484,29 +459,28 @@ public class BanManager {
         this.defaultReason = ChatColor.translateAlternateColorCodes('&', defaultReason);
         this.loadImmunities();
     }
-    
+
     public DNSBL getDNSBL() {
         return this.dnsbl;
     }
-    
+
     public boolean isWhitelisted(String name) {
         name = name.toLowerCase();
         return this.whitelist.contains(name);
     }
-    
+
     public void setWhitelisted(String name, final boolean white) {
         name = name.toLowerCase();
 
         if (white) {
             this.whitelist.add(name);
             this.db.execute("INSERT INTO whitelist (name) VALUES (?)", name);
-        }
-        else {
+        } else {
             this.whitelist.remove(name);
             this.db.execute("DELETE FROM whitelist WHERE name = ?", name);
         }
     }
-    
+
     public Mute getMute(String name) {
         name = name.toLowerCase();
         final Mute mute = this.mutes.get(name);
@@ -528,7 +502,7 @@ public class BanManager {
 
         return null;
     }
-    
+
     public Ban getBan(String name) {
         name = name.toLowerCase();
         final Ban ban = this.bans.get(name);
@@ -550,7 +524,7 @@ public class BanManager {
 
         return null;
     }
-    
+
     public IPBan getIPBan(final String ip) {
         final IPBan ipBan = this.ipbans.get(ip);
 
@@ -571,15 +545,15 @@ public class BanManager {
 
         return null;
     }
-    
+
     public IPBan getIPBan(final InetAddress addr) {
         return this.getIPBan(addr.getHostAddress());
     }
-    
+
     public Map<String, String> getIPHistory() {
         return this.recentips;
     }
-    
+
     public Set<String> getUsers(final String ip) {
         if (ip == null) {
             return null;
@@ -593,7 +567,7 @@ public class BanManager {
 
         return new HashSet<>(ips);
     }
-    
+
     public List<Warn> getWarnings(String name) {
         name = name.toLowerCase();
         final List<Warn> warnings = this.warnings.get(name);
@@ -620,7 +594,7 @@ public class BanManager {
 
         return warnings;
     }
-    
+
     public boolean deleteWarning(final String name, final Warn warn) {
         final List<Warn> warnings = this.getWarnings(name);
 
@@ -631,7 +605,7 @@ public class BanManager {
 
         return false;
     }
-    
+
     public void ban(String name, final String reason, String banner) {
         name = name.toLowerCase();
         banner = banner.toLowerCase();
@@ -642,7 +616,7 @@ public class BanManager {
         this.db.execute("INSERT INTO bans (name, reason, banner, time) VALUES (?, ?, ?, ?)", name, reason, banner, System.currentTimeMillis());
         this.kick(name, ban.getKickMessage());
     }
-    
+
     public void kick(final String user, final String msg) {
         final Runnable r = new Runnable() {
             public void run() {
@@ -656,12 +630,11 @@ public class BanManager {
 
         if (Bukkit.isPrimaryThread()) {
             r.run();
-        }
-        else {
+        } else {
             Bukkit.getScheduler().runTask(MaxBans.instance, r);
         }
     }
-    
+
     public void kickIP(final String ip, final String msg) {
         final Runnable r = new Runnable() {
             public void run() {
@@ -681,12 +654,11 @@ public class BanManager {
 
         if (Bukkit.isPrimaryThread()) {
             r.run();
-        }
-        else {
+        } else {
             Bukkit.getScheduler().runTask(MaxBans.instance, r);
         }
     }
-    
+
     public void unban(String name) {
         name = name.toLowerCase();
         final Ban ban = this.bans.get(name);
@@ -705,7 +677,7 @@ public class BanManager {
             }
         }
     }
-    
+
     public void unbanip(final String ip) {
         final IPBan ipBan = this.ipbans.get(ip);
         final TempIPBan tipBan = this.tempipbans.get(ip);
@@ -723,7 +695,7 @@ public class BanManager {
             }
         }
     }
-    
+
     public void unmute(String name) {
         name = name.toLowerCase();
         final Mute mute = this.mutes.get(name);
@@ -742,7 +714,7 @@ public class BanManager {
             }
         }
     }
-    
+
     public void tempban(String name, final String reason, String banner, final long expires) {
         name = name.toLowerCase();
         banner = banner.toLowerCase();
@@ -753,7 +725,7 @@ public class BanManager {
         this.db.execute("INSERT INTO bans (name, reason, banner, time, expires) VALUES (?, ?, ?, ?, ?)", name, reason, banner, System.currentTimeMillis(), expires);
         this.kick(name, ban.getKickMessage());
     }
-    
+
     public void ipban(final String ip, final String reason, String banner) {
         banner = banner.toLowerCase();
         this.unbanip(ip);
@@ -762,7 +734,7 @@ public class BanManager {
         this.db.execute("INSERT INTO ipbans (ip, reason, banner, time) VALUES (?, ?, ?, ?)", ip, reason, banner, System.currentTimeMillis());
         this.kickIP(ip, ipban.getKickMessage());
     }
-    
+
     public void tempipban(final String ip, final String reason, String banner, final long expires) {
         banner = banner.toLowerCase();
         this.unbanip(ip);
@@ -771,7 +743,7 @@ public class BanManager {
         this.db.execute("INSERT INTO ipbans (ip, reason, banner, time, expires) VALUES (?, ?, ?, ?, ?)", ip, reason, banner, System.currentTimeMillis(), expires);
         this.kickIP(ip, tib.getKickMessage());
     }
-    
+
     public void mute(String name, final String banner, final String reason) {
         name = name.toLowerCase();
         this.players.add(name);
@@ -780,7 +752,7 @@ public class BanManager {
         this.mutes.put(name, mute);
         this.db.execute("INSERT INTO mutes (name, muter, time) VALUES (?, ?, ?)", name, banner, System.currentTimeMillis());
     }
-    
+
     public void tempmute(String name, String banner, final String reason, final long expires) {
         name = name.toLowerCase();
         banner = banner.toLowerCase();
@@ -790,7 +762,7 @@ public class BanManager {
         this.tempmutes.put(name, tmute);
         this.db.execute("INSERT INTO mutes (name, muter, time, expires) VALUES (?, ?, ?, ?)", name, banner, System.currentTimeMillis(), expires);
     }
-    
+
     public void warn(String name, final String reason, String banner) {
         name = name.toLowerCase();
         banner = banner.toLowerCase();
@@ -804,8 +776,7 @@ public class BanManager {
 
             if (expires <= 0L) {
                 expires = Long.MAX_VALUE;
-            }
-            else {
+            } else {
                 expires += System.currentTimeMillis();
             }
 
@@ -842,7 +813,7 @@ public class BanManager {
                     return;
                 }
 
-                if (((Temporary)ban).getExpires() > System.currentTimeMillis() + 3600000L) {
+                if (((Temporary) ban).getExpires() > System.currentTimeMillis() + 3600000L) {
                     return;
                 }
             }
@@ -929,21 +900,20 @@ public class BanManager {
 
                         Bukkit.dispatchCommand(sender, cmd);
                     }
-                }
-                catch (NumberFormatException e) {
+                } catch (NumberFormatException e) {
                     e.printStackTrace();
                     System.out.println("Warning: " + key + " is not a valid number in plugins\\MaxBans\\config.yml! Please check your warnings configuration!");
                 }
             }
         }
     }
-    
+
     public void clearWarnings(String name) {
         name = name.toLowerCase();
         this.warnings.remove(name);
         this.db.execute("DELETE FROM warnings WHERE name = ?", name);
     }
-    
+
     public String getIP(final String user) {
         if (user == null) {
             return null;
@@ -951,7 +921,7 @@ public class BanManager {
 
         return this.recentips.get(user.toLowerCase());
     }
-    
+
     public boolean logActual(String name, final String actual) {
         name = name.toLowerCase();
         final String oldActual = this.actualNames.put(name, actual);
@@ -968,7 +938,7 @@ public class BanManager {
 
         return false;
     }
-    
+
     public boolean logIP(String name, final String ip) {
         name = name.toLowerCase();
         final String oldIP = this.recentips.get(name);
@@ -982,8 +952,7 @@ public class BanManager {
         if (!isNew) {
             final Set<String> usersFromOldIP = this.iplookup.get(oldIP);
             usersFromOldIP.remove(name);
-        }
-        else {
+        } else {
             this.players.add(name);
         }
 
@@ -998,18 +967,17 @@ public class BanManager {
 
         if (!isNew) {
             this.db.execute("UPDATE iphistory SET ip = ? WHERE name = ?", ip, name);
-        }
-        else {
+        } else {
             this.db.execute("INSERT INTO iphistory (name, ip) VALUES (?, ?)", name, ip);
         }
 
         return true;
     }
-    
+
     public void announce(final String s) {
         this.announce(s, false, null);
     }
-    
+
     public void announce(String s, final boolean silent, final CommandSender sender) {
         if (silent) {
             s = Formatter.primary + "[Silent] " + s;
@@ -1023,8 +991,7 @@ public class BanManager {
             if (sender != null && !sender.hasPermission("maxbans.seesilent")) {
                 sender.sendMessage(s);
             }
-        }
-        else {
+        } else {
             for (final Player p : Bukkit.getOnlinePlayers()) {
                 if (p.hasPermission("maxbans.seebroadcast")) {
                     p.sendMessage(s);
@@ -1034,11 +1001,11 @@ public class BanManager {
 
         Bukkit.getConsoleSender().sendMessage(s);
     }
-    
+
     public String match(final String partial) {
         return this.match(partial, false);
     }
-    
+
     public String match(String partial, final boolean excludeOnline) {
         partial = partial.toLowerCase();
         final String ip = this.recentips.get(partial);
@@ -1063,24 +1030,28 @@ public class BanManager {
 
         return partial;
     }
-    
+
     public Set<String> matchAll(String partial) {
         partial = partial.toLowerCase();
         return this.players.matches(partial);
     }
-    
+
     public String convertName(final String lowercase) {
         return this.actualNames.get(lowercase.toLowerCase());
     }
-    
+
     public boolean isLockdown() {
         return this.lockdown;
     }
-    
+
+    public void setLockdown(final boolean lockdown) {
+        this.setLockdown(lockdown, "Maintenance");
+    }
+
     public String getLockdownReason() {
         return this.lockdownReason;
     }
-    
+
     public void setLockdown(final boolean lockdown, String reason) {
         this.lockdown = lockdown;
         reason = ChatColor.translateAlternateColorCodes('&', reason);
@@ -1089,8 +1060,7 @@ public class BanManager {
             this.plugin.getConfig().set("lockdown", true);
             this.plugin.getConfig().set("lockdown-reason", reason);
             this.lockdownReason = reason;
-        }
-        else {
+        } else {
             this.plugin.getConfig().set("lockdown", false);
             this.plugin.getConfig().set("lockdown-reason", "");
             this.lockdownReason = "";
@@ -1098,21 +1068,17 @@ public class BanManager {
 
         this.plugin.saveConfig();
     }
-    
-    public void setLockdown(final boolean lockdown) {
-        this.setLockdown(lockdown, "Maintenance");
-    }
-    
+
     public void addChatCommand(String s) {
         s = s.toLowerCase();
         this.chatCommands.add(s);
     }
-    
+
     public boolean isChatCommand(String s) {
         s = s.toLowerCase();
         return this.chatCommands.contains(s);
     }
-    
+
     private void loadImmunities() {
         final File f = new File(MaxBans.instance.getDataFolder(), "immunities.txt");
 
@@ -1127,14 +1093,13 @@ public class BanManager {
                 }
 
                 sc.close();
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
                 System.out.println("Failed to load immunities.txt file!");
             }
         }
     }
-    
+
     private void saveImmunities() {
         final File f = new File(MaxBans.instance.getDataFolder(), "immunities.txt");
 
@@ -1147,25 +1112,23 @@ public class BanManager {
             }
 
             ps.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Failed to save immunities.txt file!");
         }
     }
-    
+
     public boolean hasImmunity(final String user) {
         return user != null && this.immunities.contains(user.toLowerCase());
     }
-    
+
     public boolean setImmunity(String user, final boolean immune) {
         user = user.toLowerCase();
         boolean success;
 
         if (immune) {
             success = this.immunities.add(user);
-        }
-        else {
+        } else {
             success = this.immunities.remove(user);
         }
 
@@ -1175,15 +1138,15 @@ public class BanManager {
 
         return success;
     }
-    
+
     public Set<String> getImmunities() {
         return new HashSet<>(this.immunities);
     }
-    
+
     public boolean isBanned(final IPAddress ip) {
         return this.getBan(ip) != null;
     }
-    
+
     public RangeBan getBan(final IPAddress ip) {
         final RangeBan dummy = new RangeBan("dummy", "n/a", System.currentTimeMillis(), ip, ip);
         final RangeBan rb = this.rangebans.floor(dummy);
@@ -1196,14 +1159,14 @@ public class BanManager {
             return null;
         }
 
-        if (rb instanceof Temporary && ((Temporary)rb).hasExpired()) {
+        if (rb instanceof Temporary && ((Temporary) rb).hasExpired()) {
             this.unban(rb);
             return null;
         }
 
         return rb;
     }
-    
+
     public RangeBan ban(final RangeBan rb) {
         RangeBan previous = this.rangebans.floor(rb);
 
@@ -1221,20 +1184,20 @@ public class BanManager {
         long expires = 0L;
 
         if (rb instanceof Temporary) {
-            expires = ((Temporary)rb).getExpires();
+            expires = ((Temporary) rb).getExpires();
         }
 
         this.plugin.getDB().execute("INSERT INTO rangebans (banner, reason, start, end, created, expires) VALUES (?, ?, ?, ?, ?, ?)", rb.getBanner(), rb.getReason(), rb.getStart().toString(), rb.getEnd().toString(), rb.getCreated(), expires);
         return null;
     }
-    
+
     public void unban(final RangeBan rb) {
         if (this.rangebans.contains(rb)) {
             this.rangebans.remove(rb);
             this.plugin.getDB().execute("DELETE FROM rangebans WHERE start = ? AND end = ?", rb.getStart().toString(), rb.getEnd().toString());
         }
     }
-    
+
     public NavigableSet<RangeBan> getRangeBans() {
         return this.rangebans;
     }

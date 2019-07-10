@@ -1,13 +1,12 @@
 package org.maxgamer.maxbans.util;
 
-import org.bukkit.entity.Player;
-import org.bukkit.command.CommandSender;
-import java.text.ParseException;
-
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.maxgamer.maxbans.MaxBans;
 import org.maxgamer.maxbans.Msg;
 
+import java.text.ParseException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -18,7 +17,7 @@ public class Util {
     private static Pattern VALID_CHARS_PATTERN;
     private static Set<String> yes;
     private static Set<String> no;
-    
+
     static {
         Util.IP_PATTERN = Pattern.compile("^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
         Util.VALID_CHARS_PATTERN = Pattern.compile("[A-Za-z0-9_]");
@@ -33,15 +32,15 @@ public class Util {
         Util.no.add("off");
         Util.no.add("disable");
     }
-    
+
     public static boolean isIP(final String s) {
         return Util.IP_PATTERN.matcher(s).matches();
     }
-    
+
     public static String getInvalidChars(final String s) {
         return Util.VALID_CHARS_PATTERN.matcher(s).replaceAll("");
     }
-    
+
     public static String getShortTime(final long ms) {
         final String s = getTime(ms);
         final String[] vals = s.split(" ");
@@ -52,14 +51,14 @@ public class Util {
 
         return String.valueOf(vals[0]) + " " + vals[1];
     }
-    
+
     public static String getTimeUntil(long epoch) {
         epoch -= System.currentTimeMillis();
         return getTime(epoch);
     }
-    
+
     public static String getTime(long ms) {
-        ms = (long)Math.ceil(ms / 1000.0D);
+        ms = (long) Math.ceil(ms / 1000.0D);
         StringBuilder sb = new StringBuilder(40);
 
         if (ms / 31449600L > 0L) {
@@ -67,54 +66,53 @@ public class Util {
             if (years > 100L) {
                 return "Never";
             }
-            sb.append(String.valueOf(years) + " "+Msg.get("times.years") + ((years == 1L) ? " " : "s "));
+            sb.append(String.valueOf(years) + " " + Msg.get("times.years") + ((years == 1L) ? " " : "s "));
             ms -= years * 31449600L;
         }
 
         if (ms / 2620800L > 0L) {
             final long months = ms / 2620800L;
-            sb.append(String.valueOf(months) + " "+Msg.get("times.months") + ((months == 1L) ? " " : "es "));
+            sb.append(String.valueOf(months) + " " + Msg.get("times.months") + ((months == 1L) ? " " : "es "));
             ms -= months * 2620800L;
         }
 
         if (ms / 604800L > 0L) {
             final long weeks = ms / 604800L;
-            sb.append(String.valueOf(weeks) + " "+Msg.get("times.weeks") + ((weeks == 1L) ? " " : "s "));
+            sb.append(String.valueOf(weeks) + " " + Msg.get("times.weeks") + ((weeks == 1L) ? " " : "s "));
             ms -= weeks * 604800L;
         }
 
         if (ms / 86400L > 0L) {
             final long days = ms / 86400L;
-            sb.append(String.valueOf(days) + " "+Msg.get("times.days") + ((days == 1L) ? " " : "s "));
+            sb.append(String.valueOf(days) + " " + Msg.get("times.days") + ((days == 1L) ? " " : "s "));
             ms -= days * 86400L;
         }
 
         if (ms / 3600L > 0L) {
             final long hours = ms / 3600L;
-            sb.append(String.valueOf(hours) + " "+Msg.get("times.hours") + ((hours == 1L) ? " " : "s "));
+            sb.append(String.valueOf(hours) + " " + Msg.get("times.hours") + ((hours == 1L) ? " " : "s "));
             ms -= hours * 3600L;
         }
 
         if (ms / 60L > 0L) {
             final long minutes = ms / 60L;
-            sb.append(String.valueOf(minutes) + " "+Msg.get("times.minutes") + ((minutes == 1L) ? " " : "s "));
+            sb.append(String.valueOf(minutes) + " " + Msg.get("times.minutes") + ((minutes == 1L) ? " " : "s "));
             ms -= minutes * 60L;
         }
 
         if (ms > 0L) {
-            sb.append(String.valueOf(ms) + " "+Msg.get("times.seconds") + ((ms == 1L) ? " " : "s "));
+            sb.append(String.valueOf(ms) + " " + Msg.get("times.seconds") + ((ms == 1L) ? " " : "s "));
         }
 
         if (sb.length() > 1) {
             sb.replace(sb.length() - 1, sb.length(), "");
-        }
-        else {
+        } else {
             sb = new StringBuilder("N/A");
         }
 
         return sb.toString();
     }
-    
+
     public static boolean isSilent(final String[] args) {
         if (args == null) {
             return false;
@@ -132,32 +130,25 @@ public class Util {
         }
         return false;
     }
-    
+
     public static long getTime(final String[] args) {
         final String arg = args[2].toLowerCase();
         int modifier;
         if (Msg.get("times.hours").startsWith(arg)) {
             modifier = 3600;
-        }
-        else if (Msg.get("times.minutes").startsWith(arg)) {
+        } else if (Msg.get("times.minutes").startsWith(arg)) {
             modifier = 60;
-        }
-        else if (Msg.get("times.seconds").startsWith(arg)) {
+        } else if (Msg.get("times.seconds").startsWith(arg)) {
             modifier = 1;
-        }
-        else if (Msg.get("times.weeks").startsWith(arg)) {
+        } else if (Msg.get("times.weeks").startsWith(arg)) {
             modifier = 604800;
-        }
-        else if (Msg.get("times.days").startsWith(arg)) {
+        } else if (Msg.get("times.days").startsWith(arg)) {
             modifier = 86400;
-        }
-        else if (Msg.get("times.years").startsWith(arg)) {
+        } else if (Msg.get("times.years").startsWith(arg)) {
             modifier = 31449600;
-        }
-        else if (Msg.get("times.months").startsWith(arg)) {
+        } else if (Msg.get("times.months").startsWith(arg)) {
             modifier = 2620800;
-        }
-        else {
+        } else {
             modifier = 0;
         }
 
@@ -165,8 +156,8 @@ public class Util {
 
         try {
             time = Double.parseDouble(args[1]);
+        } catch (NumberFormatException ignored) {
         }
-        catch (NumberFormatException ignored) {}
 
         for (int j = 0; j < args.length - 2; ++j) {
             args[j] = args[(j + 2)];
@@ -174,9 +165,9 @@ public class Util {
 
         args[args.length - 1] = "";
         args[args.length - 2] = "";
-        return (long)(modifier * time) * 1000L;
+        return (long) (modifier * time) * 1000L;
     }
-    
+
     public static String buildReason(final String[] args) {
         final StringBuilder sb = new StringBuilder();
 
@@ -194,7 +185,7 @@ public class Util {
 
         return ChatColor.translateAlternateColorCodes('&', s);
     }
-    
+
     public static boolean parseBoolean(String response) throws ParseException {
         response = response.toLowerCase();
 
@@ -208,7 +199,7 @@ public class Util {
 
         throw new ParseException("Invalid boolean: " + response, 0);
     }
-    
+
     public static String getName(final CommandSender s) {
         if (s instanceof Player) {
             return s.getName();
