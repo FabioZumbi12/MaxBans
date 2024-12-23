@@ -9,14 +9,14 @@ public class BufferStatement {
     private final Object[] values;
     private final String query;
     private final Exception stacktrace;
-    
+
     public BufferStatement(final String query, final Object... values) {
         super();
         this.query = query;
         this.values = values;
         (this.stacktrace = new Exception()).fillInStackTrace();
     }
-    
+
     public PreparedStatement prepareStatement(final Connection con) throws SQLException {
         final PreparedStatement ps = con.prepareStatement(this.query);
 

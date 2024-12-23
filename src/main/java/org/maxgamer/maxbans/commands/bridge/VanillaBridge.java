@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.maxgamer.maxbans.banmanager.TempBan;
 import org.maxgamer.maxbans.banmanager.Ban;
 
+import java.util.Date;
 import java.util.Map;
 
 import org.maxgamer.maxbans.MaxBans;
@@ -31,7 +32,7 @@ public class VanillaBridge implements Bridge {
                 continue;
             }
 
-            ban.addBan(entry.getKey(), entry.getValue().getReason(), null, null);
+            ban.addBan(entry.getKey(), entry.getValue().getReason(), (Date) null, null);
         }
 
         for (final Map.Entry<String, IPBan> entry2 : plugin.getBanManager().getIPBans().entrySet()) {
@@ -40,7 +41,7 @@ public class VanillaBridge implements Bridge {
             }
 
             BanList ban = Bukkit.getServer().getBanList(BanList.Type.IP);
-            ban.addBan(entry2.getKey(), entry2.getValue().getReason(), null, null);
+            ban.addBan(entry2.getKey(), entry2.getValue().getReason(), (Date) null, null);
         }
     }
     

@@ -1,5 +1,6 @@
 name: MaxBans
 version: 2.7 #Release
+api-version: 1.13
 main: org.maxgamer.maxbans.MaxBans
 authors: [Darekfive, Netherfoam, FabioZumbi12]
 

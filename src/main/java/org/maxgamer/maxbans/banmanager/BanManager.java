@@ -54,6 +54,7 @@ public class BanManager {
     private String appealMessage;
     private Database db;
     private DNSBL dnsbl;
+    private long tempbanTime;
     private final Set<String> immunities = new HashSet<>();
     private final NavigableSet<RangeBan> rangebans = new TreeSet<>();
     
@@ -79,7 +80,10 @@ public class BanManager {
     public void setAppealMessage(final String msg) {
         this.appealMessage = ChatColor.translateAlternateColorCodes('&', msg);
     }
-    
+
+    public long getTempbanTime() {
+        return this.tempbanTime;
+    }
     public Map<String, Ban> getBans() {
         return this.bans;
     }
@@ -172,6 +176,7 @@ public class BanManager {
             e1.printStackTrace();
         }
 
+        this.tempbanTime = this.plugin.getConfig().getLong("MaxTempbanTime", 604800L);
         this.lockdown = this.plugin.getConfig().getBoolean("lockdown");
         this.lockdownReason = ChatColor.translateAlternateColorCodes('&', this.plugin.getConfig().getString("lockdown-reason", ""));
         this.setAppealMessage(this.plugin.getConfig().getString("appeal-message", ""));

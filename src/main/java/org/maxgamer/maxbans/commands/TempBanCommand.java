@@ -38,15 +38,7 @@ public class TempBanCommand extends CmdSkeleton {
         }
 
         expires += System.currentTimeMillis();
-        final FileConfiguration conf = MaxBans.instance.getConfig();
-        long tempbanTime;
-
-        try {
-            tempbanTime = conf.getLong("MaxTempbanTime");
-        }
-        catch (Exception e) {
-            tempbanTime = 604800L;
-        }
+        long tempbanTime = this.plugin.getBanManager().getTempbanTime();
 
         long compare = tempbanTime;
         tempbanTime = tempbanTime * 1000;

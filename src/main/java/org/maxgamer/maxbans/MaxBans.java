@@ -39,11 +39,13 @@ import java.io.*;
 import org.maxgamer.maxbans.database.DatabaseCore;
 import org.maxgamer.maxbans.database.SQLiteCore;
 import org.maxgamer.maxbans.database.MySQLCore;
+import org.maxgamer.maxbans.metrics.Metrics;
 import org.maxgamer.maxbans.util.Formatter;
 import org.bukkit.Bukkit;
 
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.HashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -57,7 +59,6 @@ import org.maxgamer.maxbans.sync.SyncServer;
 import org.maxgamer.maxbans.sync.Syncer;
 import org.maxgamer.maxbans.banmanager.BanManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.mcstats.Metrics;
 
 public class MaxBans extends JavaPlugin {
     public static final String BUNGEE_CHANNEL = "BungeeCord";
@@ -70,7 +71,6 @@ public class MaxBans extends JavaPlugin {
     private ChatListener chatListener;
     private ChatCommandListener chatCommandListener;
     private Database db;
-    private Metrics metrics;
     public boolean filter_names;
     public static MaxBans instance;
     
@@ -218,11 +218,36 @@ public class MaxBans extends JavaPlugin {
         this.chatCommandListener = new ChatCommandListener();
         Bukkit.getServer().getPluginManager().registerEvents(this.joinListener, this);
         Bukkit.getServer().getPluginManager().registerEvents(this.chatCommandListener, this);
-        this.startMetrics();
 
         if (this.isBungee()) {
             Bukkit.getMessenger().registerIncomingPluginChannel(this, "BungeeCord", new BungeeListener());
             Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+        }
+
+        // Metrics
+        try {
+            Metrics metrics = new Metrics(this, 24206);
+
+            var bans = new HashMap<String, Integer>();
+            bans.put("Bans", MaxBans.this.getBanManager().getBans().size());
+            bans.put("IP_Bans", MaxBans.this.getBanManager().getIPBans().size());
+            bans.put("Range_Bans", MaxBans.this.getBanManager().getRangeBans().size());
+            metrics.addCustomChart(new Metrics.MultiLineChart("Bans", () -> bans));
+
+            var tempBans = new HashMap<String, Integer>();
+            tempBans.put("Temp_Bans", MaxBans.this.getBanManager().getTempBans().size());
+            tempBans.put("Temp_IP_Bans", MaxBans.this.getBanManager().getTempIPBans().size());
+            metrics.addCustomChart(new Metrics.MultiLineChart("Temp_Bans", () -> tempBans));
+
+            var mutes = new HashMap<String, Integer>();
+            mutes.put("Mutes", MaxBans.this.getBanManager().getMutes().size());
+            mutes.put("Temp_Mutes", MaxBans.this.getBanManager().getTempMutes().size());
+            metrics.addCustomChart(new Metrics.MultiLineChart("Mutes", () -> mutes));
+
+            if (metrics.isEnabled())
+                this.getLogger().info("Metrics enabled! See our stats here: https://bstats.org/plugin/bukkit/MaxBans");
+        } catch (Exception ex) {
+            this.getLogger().info("Metrics not enabled due errors: " + ex.getLocalizedMessage());
         }
     }
     
@@ -288,48 +313,7 @@ public class MaxBans extends JavaPlugin {
         new TempRangeBanCommand();
         new UnbanRangeCommand();
     }
-    
-    public void startMetrics() {
-        try {
-            if (this.metrics != null) {
-                return;
-            }
 
-            this.metrics = new Metrics(this);
-
-            if (!this.metrics.start()) {
-                return;
-            }
-
-            final Metrics.Graph bans = this.metrics.createGraph("Bans");
-            final Metrics.Graph ipbans = this.metrics.createGraph("IP Bans");
-            final Metrics.Graph mutes = this.metrics.createGraph("Mutes");
-            bans.addPlotter(new Metrics.Plotter() {
-                public int getValue() {
-                    return MaxBans.this.getBanManager().getBans().size();
-                }
-            });
-            ipbans.addPlotter(new Metrics.Plotter() {
-                public int getValue() {
-                    return MaxBans.this.getBanManager().getIPBans().size();
-                }
-            });
-            mutes.addPlotter(new Metrics.Plotter() {
-                public int getValue() {
-                    return MaxBans.this.getBanManager().getMutes().size();
-                }
-            });
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Metrics start failed");
-        }
-    }
-    
-    public Metrics getMetrics() {
-        return this.metrics;
-    }
-    
     public Syncer getSyncer() {
         return this.syncer;
     }

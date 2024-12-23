@@ -77,9 +77,9 @@ public class MBDebugCommand extends CmdSkeleton {
         out.print("Bukkit: " + Bukkit.getServer().getBukkitVersion());
         out.print("Plugin: " + this.plugin.toString());
         out.print("IP: " + Bukkit.getIp() + ":" + Bukkit.getPort());
-        out.print("Server: " + Bukkit.getServerName());
+        out.print("Server: " + Bukkit.getServer().getName());
         out.print("Online-mode: " + Bukkit.getServer().getOnlineMode());
-        out.print("Server String: " + Bukkit.getServer().toString());
+        out.print("Server String: " + Bukkit.getServer());
         out.print("Package: " + Bukkit.getServer().getClass().getCanonicalName());
         out.print("=== Config File ===");
         final String pass = this.plugin.getConfig().getString("database.pass");

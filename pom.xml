@@ -4,7 +4,7 @@
 
     <groupId>org.maxgamer.maxbans</groupId>
     <artifactId>MaxBans</artifactId>
-    <version>2.7.1-SNAPSHOT</version>
+    <version>2.7.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>MaxBans</name>
@@ -20,8 +20,8 @@
             <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
         </repository>
         <repository>
-            <id>novaguilds-repo</id>
-            <url>http://repo.novaguilds.pl/</url>
+            <id>mcstats</id>
+            <url>https://repo.mcstats.org/content/repositories/releases/</url>
         </repository>
     </repositories>
 
@@ -29,9 +29,10 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.12.2-R0.1-SNAPSHOT</version>
+            <version>1.20.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.dthielke</groupId>
             <artifactId>Herochat</artifactId>
@@ -45,12 +46,6 @@
             <version>1.2.9</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/lib/DynamicBan.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>org.mcstats.bukkit</groupId>
-            <artifactId>metrics</artifactId>
-            <version>R8-SNAPSHOT</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 
@@ -81,16 +76,18 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>16</source>
+                    <target>16</target>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>1.5</version>
+                <version>3.5.1</version>
+                <configuration>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                </configuration>
                 <executions>
                     <execution>
                         <phase>package</phase>

@@ -3,7 +3,6 @@ package org.maxgamer.maxbans.commands.bridge;
 import java.io.File;
 import java.util.Set;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.maxgamer.maxbans.MaxBans;
@@ -11,7 +10,7 @@ import org.maxgamer.maxbans.util.Util;
 
 public class DynamicBanBridge implements Bridge {
     public void export() {
-        throw new NotImplementedException("DynamicBan export is not implemented.");
+        System.out.println("DynamicBan export is not implemented.");
     }
     
     public void load() {
