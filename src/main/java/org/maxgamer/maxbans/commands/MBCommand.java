@@ -1,16 +1,17 @@
 package org.maxgamer.maxbans.commands;
 
-import java.util.Arrays;
-import org.maxgamer.maxbans.util.Formatter;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.maxgamer.maxbans.util.Formatter;
+
+import java.util.Arrays;
 
 public class MBCommand extends CmdSkeleton {
     public MBCommand() {
         super("mb", null);
         this.namePos = -1;
     }
-    
+
     public boolean run(final CommandSender sender, final Command cmd, final String label, final String[] args) {
         sender.sendMessage(Formatter.primary + "MaxBans Commands:");
         final CmdSkeleton[] commands = CmdSkeleton.getCommands();

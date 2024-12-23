@@ -1,22 +1,16 @@
 package org.maxgamer.maxbans.banmanager;
 
-import java.util.HashMap;
 import java.io.PrintStream;
-import java.util.LinkedList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.ArrayList;
-import java.util.Set;
+import java.util.*;
 
 public class TrieSet {
     private TrieNode top;
-    
+
     public TrieSet() {
         super();
         this.top = new TrieNode();
     }
-    
+
     private TrieNode getNode(final String s) {
         TrieNode node = this.top;
 
@@ -31,7 +25,7 @@ public class TrieSet {
 
         return node;
     }
-    
+
     private Path nearestPath(final String s) {
         final List<Path> potential = new ArrayList<>();
         final List<Path> next = new ArrayList<>();
@@ -64,7 +58,7 @@ public class TrieSet {
 
         return null;
     }
-    
+
     public String nearestKey(final String s) {
         Path p = this.nearestPath(s);
 
@@ -81,12 +75,12 @@ public class TrieSet {
 
         return String.valueOf(s) + new String(key);
     }
-    
+
     public boolean contains(final String s) {
         final TrieNode node = this.getNode(s);
         return node != null && node.isWord();
     }
-    
+
     public boolean remove(final String s) {
         final int length = s.length();
 
@@ -124,7 +118,7 @@ public class TrieSet {
 
         return node.setWord(false);
     }
-    
+
     public boolean add(final String key) {
         final int length = key.length();
 
@@ -152,7 +146,7 @@ public class TrieSet {
         this.top.setWord(true);
         return false;
     }
-    
+
     public Set<String> matches(final String s) {
         final Set<String> keys = new HashSet<>();
         TrieNode node = this.top;
@@ -178,11 +172,11 @@ public class TrieSet {
 
         return keys;
     }
-    
+
     public void clear() {
         this.top = new TrieNode();
     }
-    
+
     public void debug() {
         final PrintStream out = System.out;
         out.println("Size: " + this.size() + ", Empty: " + this.isEmpty());
@@ -201,7 +195,7 @@ public class TrieSet {
             nodes = next;
         }
     }
-    
+
     public boolean isAmbiguous(final String s) {
         final TrieNode base = this.getNode(s);
 
@@ -228,7 +222,7 @@ public class TrieSet {
 
         return false;
     }
-    
+
     public int size() {
         int size = 0;
         List<TrieNode> nodes = new LinkedList<>();
@@ -250,21 +244,21 @@ public class TrieSet {
 
         return size;
     }
-    
+
     public Set<String> values() {
         return this.matches("");
     }
-    
+
     public boolean isEmpty() {
         return !this.top.isWord() && this.top.getChildMap().isEmpty();
     }
-    
+
     private class Path {
         private Path previous;
         private TrieNode node;
         private Character c;
         private int depth;
-        
+
         public Path(final Path previous, final TrieNode node, final Character c) {
             super();
 
@@ -277,7 +271,7 @@ public class TrieSet {
             this.node = node;
             this.depth = previous.getDepth() + 1;
         }
-        
+
         public Path(final TrieNode node) {
             super();
 
@@ -288,31 +282,32 @@ public class TrieSet {
             this.node = node;
             this.depth = 0;
         }
-        
+
         public int getDepth() {
             return this.depth;
         }
-        
+
         public Path getPrevious() {
             return this.previous;
         }
-        
+
         public TrieNode getNode() {
             return this.node;
         }
-        
+
         public Character getChar() {
             return this.c;
         }
     }
-    
+
     private class TrieNode {
-        private boolean isWord;
         private final Map<Character, TrieNode> children = new HashMap<>(5);
-        
-        public TrieNode(){
-        	this(false);
+        private boolean isWord;
+
+        public TrieNode() {
+            this(false);
         }
+
         /*
         public TrieNode(final TrieSet set) {
             this(set, false);
@@ -322,25 +317,25 @@ public class TrieSet {
             super();
             this.isWord = isWord;
         }
-        
+
         public boolean isWord() {
             return this.isWord;
         }
-        
+
         public TrieNode get(final Character c) {
             return this.children.get(c);
         }
-        
+
         public TrieNode remove(final Character c) {
             return this.children.remove(c);
         }
-        
+
         public TrieNode put(final Character c) {
             final TrieNode node = new TrieNode(true);
             this.children.put(c, node);
             return node;
         }
-        
+
         public Set<String> getChildKeys() {
             final Set<String> values = new HashSet<>();
 
@@ -363,11 +358,11 @@ public class TrieSet {
 
             return values;
         }
-        
+
         public Map<Character, TrieNode> getChildMap() {
             return this.children;
         }
-        
+
         public boolean setWord(final boolean isWord) {
             final boolean old = this.isWord;
             this.isWord = isWord;

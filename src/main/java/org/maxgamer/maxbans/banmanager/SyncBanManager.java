@@ -1,25 +1,25 @@
 package org.maxgamer.maxbans.banmanager;
 
 import org.bukkit.command.CommandSender;
-import org.maxgamer.maxbans.sync.Packet;
 import org.maxgamer.maxbans.MaxBans;
+import org.maxgamer.maxbans.sync.Packet;
 
 public class SyncBanManager extends BanManager {
     private boolean sync;
-    
+
     public SyncBanManager(final MaxBans plugin) {
         super(plugin);
         this.sync = true;
     }
-    
+
     public void startSync() {
         this.sync = false;
     }
-    
+
     public void stopSync() {
         this.sync = true;
     }
-    
+
     public void addHistory(final String name, final String banner, final String message) {
         super.addHistory(name, banner, message);
 
@@ -28,7 +28,7 @@ public class SyncBanManager extends BanManager {
             super.plugin.getSyncer().broadcast(p);
         }
     }
-    
+
     public RangeBan ban(final RangeBan rb) {
         final RangeBan b = super.ban(rb);
 
@@ -38,7 +38,7 @@ public class SyncBanManager extends BanManager {
         }
         return b;
     }
-    
+
     public void unban(final RangeBan rb) {
         super.unban(rb);
 
@@ -47,7 +47,7 @@ public class SyncBanManager extends BanManager {
             super.plugin.getSyncer().broadcast(p);
         }
     }
-    
+
     public void setWhitelisted(final String name, final boolean white) {
         super.setWhitelisted(name, white);
 
@@ -61,7 +61,7 @@ public class SyncBanManager extends BanManager {
             super.plugin.getSyncer().broadcast(p);
         }
     }
-    
+
     public void kick(final String user, final String msg) {
         super.kick(user, msg);
 
@@ -70,7 +70,7 @@ public class SyncBanManager extends BanManager {
             super.plugin.getSyncer().broadcast(p);
         }
     }
-    
+
     public void kickIP(final String ip, final String msg) {
         super.kickIP(ip, msg);
 
@@ -79,7 +79,7 @@ public class SyncBanManager extends BanManager {
             super.plugin.getSyncer().broadcast(p);
         }
     }
-    
+
     public boolean setImmunity(final String user, final boolean immune) {
         final boolean change = super.setImmunity(user, immune);
 
@@ -93,7 +93,7 @@ public class SyncBanManager extends BanManager {
 
         return change;
     }
-    
+
     public void unban(final String name) {
         super.unban(name);
 
@@ -102,7 +102,7 @@ public class SyncBanManager extends BanManager {
             super.plugin.getSyncer().broadcast(p);
         }
     }
-    
+
     public void unbanip(final String ip) {
         super.unbanip(ip);
 
@@ -111,7 +111,7 @@ public class SyncBanManager extends BanManager {
             super.plugin.getSyncer().broadcast(p);
         }
     }
-    
+
     public void unmute(final String name) {
         super.unmute(name);
 
@@ -120,7 +120,7 @@ public class SyncBanManager extends BanManager {
             super.plugin.getSyncer().broadcast(p);
         }
     }
-    
+
     public void tempban(final String name, final String reason, final String banner, final long expires) {
         super.tempban(name, reason, banner, expires);
 
@@ -129,7 +129,7 @@ public class SyncBanManager extends BanManager {
             super.plugin.getSyncer().broadcast(p);
         }
     }
-    
+
     public void ipban(final String ip, final String reason, final String banner) {
         super.ipban(ip, reason, banner);
 
@@ -138,7 +138,7 @@ public class SyncBanManager extends BanManager {
             super.plugin.getSyncer().broadcast(p);
         }
     }
-    
+
     public void tempipban(final String ip, final String reason, final String banner, final long expires) {
         super.tempipban(ip, reason, banner, expires);
 
@@ -147,7 +147,7 @@ public class SyncBanManager extends BanManager {
             super.plugin.getSyncer().broadcast(p);
         }
     }
-    
+
     public void mute(final String name, final String banner, final String reason) {
         super.mute(name, banner, reason);
 
@@ -156,7 +156,7 @@ public class SyncBanManager extends BanManager {
             super.plugin.getSyncer().broadcast(p);
         }
     }
-    
+
     public void tempmute(final String name, final String banner, final String reason, final long expires) {
         super.tempmute(name, banner, reason, expires);
 
@@ -165,7 +165,7 @@ public class SyncBanManager extends BanManager {
             super.plugin.getSyncer().broadcast(p);
         }
     }
-    
+
     public void warn(final String name, final String reason, final String banner) {
         super.warn(name, reason, banner);
 
@@ -174,7 +174,7 @@ public class SyncBanManager extends BanManager {
             super.plugin.getSyncer().broadcast(p);
         }
     }
-    
+
     public void clearWarnings(final String name) {
         super.clearWarnings(name);
 
@@ -183,7 +183,7 @@ public class SyncBanManager extends BanManager {
             super.plugin.getSyncer().broadcast(p);
         }
     }
-    
+
     public boolean logActual(final String name, final String actual) {
         final boolean change = super.logActual(name, actual);
 
@@ -194,7 +194,7 @@ public class SyncBanManager extends BanManager {
 
         return change;
     }
-    
+
     public boolean logIP(final String name, final String ip) {
         final boolean change = super.logIP(name, ip);
 
@@ -205,7 +205,7 @@ public class SyncBanManager extends BanManager {
 
         return change;
     }
-    
+
     public void announce(final String s, final boolean silent, final CommandSender sender) {
         super.announce(s, silent, sender);
 
@@ -219,7 +219,7 @@ public class SyncBanManager extends BanManager {
             super.plugin.getSyncer().broadcast(p);
         }
     }
-    
+
     public boolean deleteWarning(final String name, final Warn warn) {
         if (super.deleteWarning(name, warn)) {
             if (this.sync) {
@@ -232,7 +232,7 @@ public class SyncBanManager extends BanManager {
 
         return false;
     }
-    
+
     public void ban(final String name, final String reason, final String banner) {
         super.ban(name, reason, banner);
 
@@ -241,7 +241,7 @@ public class SyncBanManager extends BanManager {
             super.plugin.getSyncer().broadcast(p);
         }
     }
-    
+
     public String toString() {
         return "SyncBanManager:" + super.toString();
     }

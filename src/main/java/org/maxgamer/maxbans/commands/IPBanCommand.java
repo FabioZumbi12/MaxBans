@@ -1,18 +1,18 @@
 package org.maxgamer.maxbans.commands;
 
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.maxgamer.maxbans.Msg;
 import org.maxgamer.maxbans.banmanager.IPBan;
 import org.maxgamer.maxbans.banmanager.TempIPBan;
 import org.maxgamer.maxbans.util.Formatter;
-import org.maxgamer.maxbans.Msg;
 import org.maxgamer.maxbans.util.Util;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 
 public class IPBanCommand extends CmdSkeleton {
     public IPBanCommand() {
         super("ipban", "maxbans.ipban");
     }
-    
+
     public boolean run(final CommandSender sender, final Command cmd, final String label, final String[] args) {
         final boolean silent = Util.isSilent(args);
         final String reason = Util.buildReason(args);
@@ -47,8 +47,7 @@ public class IPBanCommand extends CmdSkeleton {
             }
 
             this.plugin.getBanManager().ban(name, reason, banner);
-        }
-        else {
+        } else {
             ip = name;
         }
 
@@ -60,7 +59,7 @@ public class IPBanCommand extends CmdSkeleton {
         }
 
         this.plugin.getBanManager().ipban(ip, reason, banner);
-        final String message = Msg.get("announcement.player-was-ip-banned", new String[] { "banner", "name", "reason", "ip" }, new String[] { banner, name, reason, ip });
+        final String message = Msg.get("announcement.player-was-ip-banned", new String[]{"banner", "name", "reason", "ip"}, new String[]{banner, name, reason, ip});
         this.plugin.getBanManager().announce(message, silent, sender);
         this.plugin.getBanManager().addHistory(name, banner, message);
         return true;

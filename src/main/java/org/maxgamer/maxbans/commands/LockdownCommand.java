@@ -1,23 +1,24 @@
 package org.maxgamer.maxbans.commands;
 
-import org.maxgamer.maxbans.util.Formatter;
-import java.text.ParseException;
-import org.maxgamer.maxbans.util.Util;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.maxgamer.maxbans.util.Formatter;
+import org.maxgamer.maxbans.util.Util;
+
+import java.text.ParseException;
 
 public class LockdownCommand extends CmdSkeleton {
     private static String defaultReason;
-    
+
     static {
         LockdownCommand.defaultReason = "Maintenance";
     }
-    
+
     public LockdownCommand() {
         super("lockdown", "maxbans.lockdown.use");
         this.namePos = -1;
     }
-    
+
     public boolean run(final CommandSender sender, final Command cmd, final String label, final String[] args) {
         boolean on;
         String reason;
@@ -25,8 +26,7 @@ public class LockdownCommand extends CmdSkeleton {
             try {
                 on = Util.parseBoolean(args[0]);
                 args[0] = "";
-            }
-            catch (ParseException e) {
+            } catch (ParseException e) {
                 on = !this.plugin.getBanManager().isLockdown();
             }
 
@@ -47,8 +47,7 @@ public class LockdownCommand extends CmdSkeleton {
             if (reason.isEmpty()) {
                 reason = LockdownCommand.defaultReason;
             }
-        }
-        else {
+        } else {
             on = !this.plugin.getBanManager().isLockdown();
             reason = LockdownCommand.defaultReason;
         }

@@ -1,25 +1,26 @@
 package org.maxgamer.maxbans.bungee;
 
-import org.maxgamer.maxbans.banmanager.RangeBan;
-import org.maxgamer.maxbans.banmanager.IPBan;
-import org.maxgamer.maxbans.banmanager.Temporary;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.messaging.PluginMessageListener;
+import org.maxgamer.maxbans.MaxBans;
+import org.maxgamer.maxbans.banmanager.IPBan;
+import org.maxgamer.maxbans.banmanager.RangeBan;
+import org.maxgamer.maxbans.banmanager.Temporary;
 import org.maxgamer.maxbans.util.Formatter;
 import org.maxgamer.maxbans.util.IPAddress;
-import org.bukkit.Bukkit;
-import java.io.DataInputStream;
+
 import java.io.ByteArrayInputStream;
-import org.bukkit.entity.Player;
-import org.maxgamer.maxbans.MaxBans;
-import org.bukkit.plugin.messaging.PluginMessageListener;
+import java.io.DataInputStream;
 
 public class BungeeListener implements PluginMessageListener {
     private final MaxBans plugin = MaxBans.instance;
-    
+
     public BungeeListener() {
         super();
     }
-    
+
     public void onPluginMessageReceived(final String channel, final Player player, final byte[] message) {
         try {
             final DataInputStream in = new DataInputStream(new ByteArrayInputStream(message));
@@ -65,8 +66,7 @@ public class BungeeListener implements PluginMessageListener {
                     }
                 }, 1L);
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

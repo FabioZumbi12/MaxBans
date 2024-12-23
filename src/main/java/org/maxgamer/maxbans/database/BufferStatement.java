@@ -1,9 +1,9 @@
 package org.maxgamer.maxbans.database;
 
-import java.util.Arrays;
-import java.sql.SQLException;
-import java.sql.PreparedStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Arrays;
 
 public class BufferStatement {
     private final Object[] values;
@@ -26,11 +26,11 @@ public class BufferStatement {
 
         return ps;
     }
-    
+
     public StackTraceElement[] getStackTrace() {
         return this.stacktrace.getStackTrace();
     }
-    
+
     public String toString() {
         return "Query: " + this.query + ", values: " + Arrays.toString(this.values);
     }

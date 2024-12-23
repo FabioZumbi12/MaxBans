@@ -1,32 +1,21 @@
 package org.maxgamer.maxbans.sync;
 
 import org.bukkit.Bukkit;
-import java.util.Iterator;
+
 import java.io.IOException;
-import java.net.Socket;
 import java.net.ServerSocket;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.net.Socket;
+import java.util.*;
 
 public class SyncServer {
     public final int MAX_FAILED_AUTH_ATTEMPTS = 10;
     private final int port;
-    private String pass;
     private final Set<ServerToClientConnection> connections = new HashSet<>();
     private final Map<String, Integer> blacklist = new HashMap<>();
-    ServerSocket core;
     private final Thread watcher;
-    
-    public Map<String, Integer> getBlacklist() {
-        return this.blacklist;
-    }
-    
-    public Set<ServerToClientConnection> getConnections() {
-        return this.connections;
-    }
-    
+    ServerSocket core;
+    private String pass;
+
     public SyncServer(final int port, final String pass) {
         super();
         this.watcher = new Thread() {
@@ -39,8 +28,7 @@ public class SyncServer {
 
                         if (i == null) {
                             i = 1;
-                        }
-                        else {
+                        } else {
                             ++i;
                         }
 
@@ -52,8 +40,7 @@ public class SyncServer {
                             }
 
                             s.close();
-                        }
-                        else {
+                        } else {
                             if (SyncUtil.isDebug()) {
                                 SyncServer.log("Connection request from " + s.getInetAddress().getHostAddress());
                             }
@@ -61,8 +48,7 @@ public class SyncServer {
                             final ServerToClientConnection con = new ServerToClientConnection(SyncServer.this, s);
                             con.start();
                         }
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -73,12 +59,23 @@ public class SyncServer {
 
         try {
             this.pass = SyncUtil.encrypt(pass, "fuQJ7_q#eF78A&D");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException("Failed to encrypt password: " + e.getMessage());
         }
     }
-    
+
+    public static void log(final String s) {
+        Bukkit.getConsoleSender().sendMessage("[MaxBans-SyncServer] " + s);
+    }
+
+    public Map<String, Integer> getBlacklist() {
+        return this.blacklist;
+    }
+
+    public Set<ServerToClientConnection> getConnections() {
+        return this.connections;
+    }
+
     public void start() throws IOException {
         if (SyncUtil.isDebug()) {
             log("Starting server.");
@@ -92,14 +89,14 @@ public class SyncServer {
             log("Server started successfully.");
         }
     }
-    
+
     public void stop() {
         try {
             this.core.close();
+        } catch (IOException ignored) {
         }
-        catch (IOException ignored) {}
     }
-    
+
     public void sendAll(final Packet p, final ServerToClientConnection except) {
         final Iterator<ServerToClientConnection> sit = this.connections.iterator();
 
@@ -112,12 +109,10 @@ public class SyncServer {
 
             if (!con.isOpen()) {
                 sit.remove();
-            }
-            else {
+            } else {
                 try {
                     con.write(p);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     if (SyncUtil.isDebug()) {
                         e.printStackTrace();
                     }
@@ -132,12 +127,8 @@ public class SyncServer {
             }
         }
     }
-    
+
     public String getPassword() {
         return this.pass;
-    }
-    
-    public static void log(final String s) {
-        Bukkit.getConsoleSender().sendMessage("[MaxBans-SyncServer] " + s);
     }
 }

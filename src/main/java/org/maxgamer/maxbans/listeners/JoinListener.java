@@ -1,28 +1,27 @@
 package org.maxgamer.maxbans.listeners;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
+import org.maxgamer.maxbans.MaxBans;
 import org.maxgamer.maxbans.banmanager.Ban;
-import org.maxgamer.maxbans.banmanager.RangeBan;
 import org.maxgamer.maxbans.banmanager.IPBan;
-import org.maxgamer.maxbans.sync.Packet;
+import org.maxgamer.maxbans.banmanager.RangeBan;
 import org.maxgamer.maxbans.banmanager.Temporary;
+import org.maxgamer.maxbans.commands.DupeIPCommand;
+import org.maxgamer.maxbans.sync.Packet;
 import org.maxgamer.maxbans.util.Formatter;
 import org.maxgamer.maxbans.util.IPAddress;
 import org.maxgamer.maxbans.util.Util;
-import java.io.IOException;
-import java.io.DataOutputStream;
+
 import java.io.ByteArrayOutputStream;
-import org.maxgamer.maxbans.MaxBans;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.ChatColor;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.EventHandler;
-
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Set;
-
-import org.bukkit.entity.Player;
-import org.bukkit.Bukkit;
-import org.maxgamer.maxbans.commands.DupeIPCommand;
-import org.bukkit.event.player.PlayerLoginEvent;
 
 public class JoinListener extends ListenerSkeleton {
     @EventHandler(priority = EventPriority.NORMAL)
@@ -64,12 +63,11 @@ public class JoinListener extends ListenerSkeleton {
 
         if (this.getPlugin().isBungee()) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(this.getPlugin(), r);
-        }
-        else {
+        } else {
             r.run();
         }
     }
-    
+
     @EventHandler(priority = EventPriority.LOW)
     public void onJoinLockdown(final PlayerLoginEvent event) {
         final Player player = event.getPlayer();
@@ -92,7 +90,7 @@ public class JoinListener extends ListenerSkeleton {
             }, 40L);
         }
     }
-    
+
     @EventHandler(priority = EventPriority.LOWEST)
     public void onEnter(final PlayerJoinEvent e) {
         if (MaxBans.instance.isBungee()) {
@@ -103,15 +101,15 @@ public class JoinListener extends ListenerSkeleton {
 
                     try {
                         out.writeUTF("IP");
+                    } catch (IOException ignored) {
                     }
-                    catch (IOException ignored) {}
 
                     e.getPlayer().sendPluginMessage(MaxBans.instance, "BungeeCord", b.toByteArray());
                 }
             });
         }
     }
-    
+
     @EventHandler(priority = EventPriority.LOWEST)
     public void onJoinHandler(final PlayerLoginEvent e) {
         final Player player = e.getPlayer();

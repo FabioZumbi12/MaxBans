@@ -1,18 +1,16 @@
 package org.maxgamer.maxbans;
 
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.*;
 
-import org.bukkit.configuration.InvalidConfigurationException;
-
-import org.bukkit.configuration.file.YamlConfiguration;
-
 public class Msg {
     private static YamlConfiguration cfg;
-    
+
     @SuppressWarnings("deprecation")
-	public static void reload() {
+    public static void reload() {
         final File f = new File(MaxBans.instance.getDataFolder(), "messages.yml");
         Msg.cfg = new YamlConfiguration();
 
@@ -24,8 +22,7 @@ public class Msg {
 
             if (f.exists()) {
                 Msg.cfg.load(f);
-            }
-            else {
+            } else {
                 final FileOutputStream out = new FileOutputStream(f);
                 in = MaxBans.instance.getResource("messages.yml");
                 final byte[] buffer = new byte[1024];
@@ -39,23 +36,20 @@ public class Msg {
             }
 
             Msg.cfg.setDefaults(defaults);
-        }
-        catch (InvalidConfigurationException e2) {
+        } catch (InvalidConfigurationException e2) {
             e2.printStackTrace();
             System.out.println("Invalid messages.yml config. Using defaults.");
 
             try {
                 Msg.cfg.load(new InputStreamReader(MaxBans.instance.getResource("messages.yml")));
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
-        }
-        catch (IOException e3) {
+        } catch (IOException e3) {
             e3.printStackTrace();
         }
     }
-    
+
     public static String get(final String loc, final String[] keys, final String[] values) {
         String msg = Msg.cfg.getString(loc);
 
@@ -67,8 +61,7 @@ public class Msg {
             if (keys.length != values.length) {
                 try {
                     throw new IllegalArgumentException("Invalid message request. keys.length should equal values.length!");
-                }
-                catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException e) {
                     e.printStackTrace();
                 }
             }
@@ -80,12 +73,12 @@ public class Msg {
 
         return ChatColor.translateAlternateColorCodes('&', msg);
     }
-    
+
     public static String get(final String loc) {
-        return get(loc, null, (String[])null);
+        return get(loc, null, (String[]) null);
     }
-    
+
     public static String get(final String loc, final String key, final String value) {
-        return get(loc, new String[] { key }, new String[] { value });
+        return get(loc, new String[]{key}, new String[]{value});
     }
 }

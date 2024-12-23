@@ -11,7 +11,7 @@ public class KickCommand extends CmdSkeleton {
     public KickCommand() {
         super("kick", "maxbans.kick");
     }
-    
+
     public boolean run(final CommandSender sender, final Command cmd, final String label, final String[] args) {
         if (args.length <= 0) {
             sender.sendMessage(this.getUsage());
@@ -31,27 +31,26 @@ public class KickCommand extends CmdSkeleton {
 
         if (sender instanceof Player) {
             banner = sender.getName();
-        }
-        else {
+        } else {
             banner = "Console";
         }
 
         if (name.equals("*") && sender.hasPermission("maxbans.kick.all")) {
             for (final Player p : Bukkit.getOnlinePlayers()) {
-                final String message = Msg.get("disconnection.you-were-kicked", new String[] { "banner", "reason" }, new String[] { banner, reason });
+                final String message = Msg.get("disconnection.you-were-kicked", new String[]{"banner", "reason"}, new String[]{banner, reason});
                 this.plugin.getBanManager().kick(p.getName(), message);
             }
 
-            final String message2 = Msg.get("announcement.player-was-kicked", new String[] { "name", "banner", "reason" }, new String[] { "everyone", banner, reason });
+            final String message2 = Msg.get("announcement.player-was-kicked", new String[]{"name", "banner", "reason"}, new String[]{"everyone", banner, reason});
             this.plugin.getBanManager().announce(message2, silent, sender);
             this.plugin.getBanManager().addHistory(name, banner, message2);
             return true;
         }
 
         if (Util.isIP(name)) {
-            String message2 = Msg.get("disconnection.you-were-kicked", new String[] { "banner", "reason" }, new String[] { banner, reason });
+            String message2 = Msg.get("disconnection.you-were-kicked", new String[]{"banner", "reason"}, new String[]{banner, reason});
             this.plugin.getBanManager().kickIP(name, message2);
-            message2 = Msg.get("announcement.player-was-kicked", new String[] { "name", "banner", "reason" }, new String[] { name, banner, reason });
+            message2 = Msg.get("announcement.player-was-kicked", new String[]{"name", "banner", "reason"}, new String[]{name, banner, reason});
             this.plugin.getBanManager().announce(message2, silent, sender);
             this.plugin.getBanManager().addHistory(name, banner, message2);
             return true;
@@ -61,14 +60,13 @@ public class KickCommand extends CmdSkeleton {
 
         if (p != null) {
             name = p.getName().toLowerCase();
-            String message3 = Msg.get("disconnection.you-were-kicked", new String[] { "banner", "reason" }, new String[] { banner, reason });
+            String message3 = Msg.get("disconnection.you-were-kicked", new String[]{"banner", "reason"}, new String[]{banner, reason});
             this.plugin.getBanManager().kick(name, message3);
-            message3 = Msg.get("announcement.player-was-kicked", new String[] { "name", "banner", "reason" }, new String[] { name, banner, reason });
+            message3 = Msg.get("announcement.player-was-kicked", new String[]{"name", "banner", "reason"}, new String[]{name, banner, reason});
             this.plugin.getBanManager().announce(message3, silent, sender);
             this.plugin.getBanManager().addHistory(name, banner, message3);
-        }
-        else {
-            final String message3 = Msg.get("error.unknown-player", new String[] { "name" }, new String[] { name });
+        } else {
+            final String message3 = Msg.get("error.unknown-player", new String[]{"name"}, new String[]{name});
             sender.sendMessage(message3);
         }
 

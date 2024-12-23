@@ -1,17 +1,17 @@
 package org.maxgamer.maxbans.commands;
 
-import org.maxgamer.maxbans.banmanager.IPBan;
-import org.maxgamer.maxbans.banmanager.TempIPBan;
-import org.maxgamer.maxbans.Msg;
-import org.maxgamer.maxbans.util.Util;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.maxgamer.maxbans.Msg;
+import org.maxgamer.maxbans.banmanager.IPBan;
+import org.maxgamer.maxbans.banmanager.TempIPBan;
+import org.maxgamer.maxbans.util.Util;
 
 public class TempIPBanCommand extends CmdSkeleton {
     public TempIPBanCommand() {
         super("tempipban", "maxbans.tempipban");
     }
-    
+
     public boolean run(final CommandSender sender, final Command cmd, final String label, final String[] args) {
         if (args.length <= 2) {
             sender.sendMessage(this.getUsage());
@@ -54,8 +54,7 @@ public class TempIPBanCommand extends CmdSkeleton {
             }
 
             this.plugin.getBanManager().tempban(name, reason, banner, time);
-        }
-        else {
+        } else {
             ip = name;
         }
 
@@ -68,7 +67,7 @@ public class TempIPBanCommand extends CmdSkeleton {
                 return true;
             }
 
-            final TempIPBan tBan = (TempIPBan)ban;
+            final TempIPBan tBan = (TempIPBan) ban;
 
             if (tBan.getExpires() > time) {
                 final String msg3 = Msg.get("error.tempipban-shorter-than-last");
@@ -80,7 +79,7 @@ public class TempIPBanCommand extends CmdSkeleton {
         }
 
         this.plugin.getBanManager().tempipban(ip, reason, banner, time);
-        final String message = Msg.get("announcement.player-was-tempipbanned", new String[] { "banner", "name", "reason", "ip", "time" }, new String[] { banner, name, reason, ip, Util.getTimeUntil(time) });
+        final String message = Msg.get("announcement.player-was-tempipbanned", new String[]{"banner", "name", "reason", "ip", "time"}, new String[]{banner, name, reason, ip, Util.getTimeUntil(time)});
         this.plugin.getBanManager().announce(message, silent, sender);
         return true;
     }

@@ -1,46 +1,26 @@
 package org.maxgamer.maxbans.commands;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.command.TabCompleter;
+import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.maxgamer.maxbans.MaxBans;
 import org.maxgamer.maxbans.Msg;
 import org.maxgamer.maxbans.util.Formatter;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 public abstract class CmdSkeleton implements CommandExecutor, TabCompleter, Comparable<CmdSkeleton> {
     private static final Set<CmdSkeleton> commands = new HashSet<>();
     protected final MaxBans plugin = MaxBans.instance;
     protected final String perm;
+    protected final PluginCommand cmd;
     protected int minArgs;
     protected int namePos;
-    protected final PluginCommand cmd;
-    
-    public static CmdSkeleton[] getCommands() {
-        return CmdSkeleton.commands.toArray(new CmdSkeleton[CmdSkeleton.commands.size()]);
-    }
-    
-    public int compareTo(final CmdSkeleton skelly) {
-        return this.cmd.getUsage().compareToIgnoreCase(skelly.cmd.getUsage());
-    }
-    
-    public boolean equals(final Object o) {
-        return o.getClass() == this.getClass();
-    }
-    
-    public int hashCode() {
-        return this.getClass().hashCode();
-    }
-    
+
     public CmdSkeleton(final String command, final String perm) {
         super();
         this.minArgs = 0;
@@ -54,19 +34,35 @@ public abstract class CmdSkeleton implements CommandExecutor, TabCompleter, Comp
 
         CmdSkeleton.commands.add(this);
     }
-    
+
+    public static CmdSkeleton[] getCommands() {
+        return CmdSkeleton.commands.toArray(new CmdSkeleton[CmdSkeleton.commands.size()]);
+    }
+
+    public int compareTo(final CmdSkeleton skelly) {
+        return this.cmd.getUsage().compareToIgnoreCase(skelly.cmd.getUsage());
+    }
+
+    public boolean equals(final Object o) {
+        return o.getClass() == this.getClass();
+    }
+
+    public int hashCode() {
+        return this.getClass().hashCode();
+    }
+
     public String getUsage() {
         return Formatter.secondary + this.cmd.getUsage();
     }
-    
+
     public String getDescription() {
         return this.cmd.getDescription();
     }
-    
+
     public boolean hasPermission(final CommandSender sender) {
         return this.perm == null || this.perm.isEmpty() || sender.hasPermission(this.perm);
     }
-    
+
     public boolean onCommand(final CommandSender sender, final Command cmd, final String label, final String[] args) {
         if (!this.hasPermission(sender)) {
             sender.sendMessage(Msg.get("error.no-permission"));
@@ -80,8 +76,7 @@ public abstract class CmdSkeleton implements CommandExecutor, TabCompleter, Comp
 
         try {
             return this.run(sender, cmd, label, args);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             sender.sendMessage(ChatColor.RED + "Something went wrong when executing the command: ");
             final StringBuilder sb = new StringBuilder(args[0]);
@@ -97,7 +92,7 @@ public abstract class CmdSkeleton implements CommandExecutor, TabCompleter, Comp
             return true;
         }
     }
-    
+
     public List<String> onTabComplete(final CommandSender sender, final Command cmd, final String label, final String[] args) {
         final List<String> results = new ArrayList<>();
 
@@ -128,6 +123,6 @@ public abstract class CmdSkeleton implements CommandExecutor, TabCompleter, Comp
 
         return results;
     }
-    
+
     public abstract boolean run(final CommandSender p0, final Command p1, final String p2, final String[] p3);
 }

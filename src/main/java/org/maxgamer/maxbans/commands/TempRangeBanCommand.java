@@ -15,7 +15,7 @@ public class TempRangeBanCommand extends CmdSkeleton {
     public TempRangeBanCommand() {
         super("temprangeban", "maxbans.temprangeban");
     }
-    
+
     public boolean run(final CommandSender sender, final Command cmd, final String label, final String[] args) {
         if (args.length < 3) {
             sender.sendMessage(this.getUsage());
@@ -27,9 +27,8 @@ public class TempRangeBanCommand extends CmdSkeleton {
         String[] ips = args[0].split("-");
 
         if (ips.length == 1 && ips[0].contains("*")) {
-            ips = new String[] { ips[0].replace('*', '0'), ips[0].replace("*", "255") };
-        }
-        else if (ips.length != 2) {
+            ips = new String[]{ips[0].replace('*', '0'), ips[0].replace("*", "255")};
+        } else if (ips.length != 2) {
             sender.sendMessage(ChatColor.RED + "Not enough IP addresses supplied! Usage: " + this.getUsage());
             return true;
         }
@@ -62,8 +61,7 @@ public class TempRangeBanCommand extends CmdSkeleton {
                     p.kickPlayer(rb.getKickMessage());
                 }
             }
-        }
-        else {
+        } else {
             sender.sendMessage(ChatColor.RED + "That RangeBan overlaps an existing one! (" + overlap.toString() + ")");
         }
 

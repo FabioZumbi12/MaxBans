@@ -1,25 +1,26 @@
 package org.maxgamer.maxbans.sync;
 
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
-import java.security.MessageDigest;
 import org.maxgamer.maxbans.MaxBans;
+
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
 public class SyncUtil {
     public static final String PASSWORD_SALT = "fuQJ7_q#eF78A&D";
     private static char[] chars;
     private static Random r;
-    
+
     static {
         SyncUtil.r = new Random();
         SyncUtil.chars = "abcdefghijklmnopqrstuvwrxyzABCDEFGHIJKLMNOPQRSTUVWRXYZ0123456789".toCharArray();
     }
-    
+
     public static boolean isDebug() {
         return MaxBans.instance.getConfig().getBoolean("sync.debug");
     }
-    
+
     public static String getRandomString(final int len) {
         final StringBuilder sb = new StringBuilder();
 
@@ -29,7 +30,7 @@ public class SyncUtil {
 
         return sb.toString();
     }
-    
+
     private static String convertedToHex(final byte[] data) {
         final StringBuffer buf = new StringBuffer();
 
@@ -39,10 +40,9 @@ public class SyncUtil {
 
             do {
                 if (halfOfByte >= 0 && halfOfByte <= 9) {
-                    buf.append((char)(48 + halfOfByte));
-                }
-                else {
-                    buf.append((char)(97 + (halfOfByte - 10)));
+                    buf.append((char) (48 + halfOfByte));
+                } else {
+                    buf.append((char) (97 + (halfOfByte - 10)));
                 }
 
                 halfOfByte = (data[i] & 0xF);
@@ -51,7 +51,7 @@ public class SyncUtil {
 
         return buf.toString();
     }
-    
+
     public static String MD5(final String text) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         final MessageDigest md = MessageDigest.getInstance("MD5");
         byte[] md2 = new byte[64];
@@ -59,7 +59,7 @@ public class SyncUtil {
         md2 = md.digest();
         return convertedToHex(md2);
     }
-    
+
     public static String encrypt(final String text, final String salt) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         return MD5(String.valueOf(MD5(text)) + salt);
     }
